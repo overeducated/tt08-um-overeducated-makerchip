@@ -9,12 +9,16 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+The basic code is a fixed-length shift register.
+The LFSR aspect (Fibonacci only at this point)
+    determines the appropriate mask bits using the "lfsr_length" input
+    which is then used to mask the shift-register value
+and thus computes the lfsr input bit.
 
 ## How to test
 
-Explain how to use your project
+Provide the desired length and watch the outputs change cycle by cycle.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Nothing beyond that required to set the length input and (optionally) using the hold input to pause the LFSR.

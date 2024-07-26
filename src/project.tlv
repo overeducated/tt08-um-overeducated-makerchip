@@ -115,24 +115,28 @@ module m5_user_module_name (
    // your Verilog logic goes here.
    // =========================================
 
+// kwr::SIGH,,, Makerchip projects are currently limited to this single source file plus any TL-Verilog libraries included via URL.
+// `include "lfsr_modules.v"
+
    // ////////////////////////////////////////////////////////////////////////
    // ////////////////////////////////////////////////////////////////////////
    // kwr::INCLUDE<<< Modules
    // ------------------------------------------------------------------------
 
-`include "lfsr_modules.v"
 
    // ------------------------------------------------------------------------
    // kwr::INCLUDE>>> Modules
    // ////////////////////////////////////////////////////////////////////////
    // ////////////////////////////////////////////////////////////////////////
 
+// kwr::SIGH,,, Makerchip projects are currently limited to this single source file plus any TL-Verilog libraries included via URL.
+// `include "lfsr_logic"
+
    // ////////////////////////////////////////////////////////////////////////
    // ////////////////////////////////////////////////////////////////////////
    // kwr::INCLUDE<<< Logic
    // ------------------------------------------------------------------------
 
-`include "lfsr_logic"
 
    // ------------------------------------------------------------------------
    // kwr::INCLUDE>>> Logic

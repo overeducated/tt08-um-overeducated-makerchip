@@ -27,7 +27,7 @@ pinout:
   ui[3]: "lfsr_length[3]"
   ui[4]: "lfsr_length[4]"
   ui[5]: "lfsr_length[5]"
-  ui[6]: "lfsr_type"        // should this one be lfsr_load (length) (and reinitialize?) or just use reset (with or without latch) to load?
+  ui[6]: "lfsr_type"        # should this one be lfsr_load (length) (and reinitialize?) or just use reset (with or without latch) to load?
   ui[7]: "lfsr_hold"
 
   # Outputs

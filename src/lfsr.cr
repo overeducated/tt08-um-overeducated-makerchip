@@ -3,6 +3,11 @@
 # module
 ########################################################################
 
+########################################################################
+# example run command
+#    % crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic
+########################################################################
+
     # language and library setup
 
     require "json"
@@ -16,7 +21,7 @@
     TT_INPUT_OUTPUT     = "aio"
     TT_INPUT_OUTPUT_EN  = "aio_en"
 
-    # **** could validate that LFSR[i][0] == i… ****
+    # **** could validate that LFSR[i][0] == i... ****
 
     LFSR_INIT  = 0              # kwr::HACK--- using a 1 value rather than something smarter (and contained in the table for generality?)
 
@@ -178,8 +183,8 @@
 
     DQ                 = '"'
     SQ                 = "'"
-    DQED_SQ            = DQ + SQ + DQ           # there has to be a better way…
-    SQED_DQ            = SQ + DQ + SQ           # there has to be a better way…
+    DQED_SQ            = DQ + SQ + DQ           # there has to be a better way....
+    SQED_DQ            = SQ + DQ + SQ           # there has to be a better way....
 
     ##################
     ##################
@@ -281,7 +286,7 @@
             @type               = Type::Unknown
             @lfsr_length        = 0
             #@lfsr_n_taps        = 0
-            @lfsr_init          = 0             # kwr::GUESS--- likely invalid for all LFSR but should be smarter about it (and -1 is so signed....)
+            @lfsr_init          = 0             # kwr::GUESS--- likely invalid for all LFSR but should be smarter about it (and -1 is so signed...)
             @lfsr_width         = 0
             @lfsr_bound         = 0
 
@@ -422,7 +427,7 @@
         # for better or worse, each class now has its own class variables
         # and do not share the top-level declaring class's class variables.
 
-        # for args, can use gt : Language but not gc : HDL_Generator....
+        # for args, can use gt : Language but not gc : HDL_Generator...
 
         # currently we end up with gc : HDL_Generator.class rather than HDL_Generator as the type;
         # the former doesn't seem right (with what i understand at the moment) but does seem to work
@@ -568,13 +573,13 @@
                         valid  = 1
 
                     else
-                        taps   = [] of Int32                                         # no taps....
+                        taps   = [] of Int32                                         # no taps...
                         valid  = 0
                     end # if
 
                     mask  = "0" * lfsr_length
 
-                    taps.each { | t | mask  = mask.sub((lfsr_length - 1) - t, "1"); }               # ugly, but i guess that's the breaks (faster to generate sequentially? i doubt it....)
+                    taps.each { | t | mask  = mask.sub((lfsr_length - 1) - t, "1"); }               # ugly, but i guess that's the breaks (faster to generate sequentially? i doubt it...)
 
                     puts "               #{index_width}d#{i} : mask  = begin #{lfsr_length}b#{mask}; valid = #{valid}; end"
                 end # do
@@ -593,7 +598,7 @@
                 puts "endmodule"
 
               # when Type::Galois
-              #   # TBD...
+              #   # TBD....
 
               else
                 puts "Feedback type #{gen_opts.type} unimplemented"

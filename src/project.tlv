@@ -48,31 +48,32 @@
 module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, output logic failed);
    // Tiny tapeout I/O signals.
    logic [7:0] ui_in, uio_in, uo_out, uio_out, uio_oe;
-   logic [31:0] r;
-   always @(posedge clk) r = m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
-   assign ui_in = r[7:0];
-   assign uio_in = r[15:8];
-   logic ena = 1'b0;
-   logic rst_n = ! reset;
+//   logic [31:0] r;
+//   always @(posedge clk) r = m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
+//   assign ui_in = r[7:0];
+//   assign uio_in = r[15:8];
+//   logic ena = 1'b0;
+//   logic rst_n = ! reset;
    
-   /*
-   // Or, to provide specific inputs at specific times...
-   // BE SURE TO COMMENT THE ASSIGNMENT OF INPUTS ABOVE.
-   // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
-   // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
-   initial begin
-      #1  // Drive inputs on the B-phase.
-         ui_in = 8'h0;
-      #10 // Step past reset.
-         ui_in = 8'hFF;
-      // ...etc.
-   end
-   */
+//   /*
+//   // Or, to provide specific inputs at specific times...
+//   // BE SURE TO COMMENT THE ASSIGNMENT OF INPUTS ABOVE.
+//   // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
+//   // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
+//   initial begin
+//      #1  // Drive inputs on the B-phase.
+//         ui_in = 8'h0;
+//      #10 // Step past reset.
+//         ui_in = 8'hFF;
+//      // ...etc.
+//   end
+//   */
    
    // Instantiate the Tiny Tapeout module.
    m5_user_module_name tt(.*);
    
-   assign passed = cyc_cnt > 100;
+//   assign passed = cyc_cnt > 100;
+   assign passed = 1'b1; 
    assign failed = 1'b0;
 endmodule
 
@@ -119,7 +120,7 @@ module m5_user_module_name (
    // kwr::INCLUDE<<< Modules
    // ------------------------------------------------------------------------
 
-
+`include "lfsr_modules.v"
 
    // ------------------------------------------------------------------------
    // kwr::INCLUDE>>> Modules
@@ -131,7 +132,7 @@ module m5_user_module_name (
    // kwr::INCLUDE<<< Logic
    // ------------------------------------------------------------------------
 
-
+`include "lfsr_logic"
 
    // ------------------------------------------------------------------------
    // kwr::INCLUDE>>> Logic

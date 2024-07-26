@@ -10,7 +10,7 @@
    use(m5-1.0)  // See M5 docs in Makerchip IDE Learn menu.
    
    // ---SETTINGS---
-   var(my_design, tt_um_example)  /// Change tt_um_example to tt_um_<your-github-username>_<name-of-your-project>. (See README.md.)
+   var(my_design, tt_um_overeducated_makerchip)  /// Change tt_um_example to tt_um_<your-github-username>_<name-of-your-project>. (See README.md.)
    var(debounce_inputs, 0)
                      /// Legal values:
                      ///   1: Provide synchronization and debouncing on all input signals.
@@ -107,14 +107,37 @@ module m5_user_module_name (
    m5+tt_input_labels_viz(['"UNUSED", "UNUSED", "UNUSED", "UNUSED", "UNUSED", "UNUSED", "UNUSED", "UNUSED"'])
    
 \SV_plus
-   
+
+
    // =========================================
    // If you are using (System)Verilog for your design,
    // your Verilog logic goes here.
    // =========================================
-   
-   // ...
-   
+
+   // ////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////
+   // kwr::INCLUDE<<< Modules
+   // ------------------------------------------------------------------------
+
+
+
+   // ------------------------------------------------------------------------
+   // kwr::INCLUDE>>> Modules
+   // ////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////
+
+   // ////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////
+   // kwr::INCLUDE<<< Logic
+   // ------------------------------------------------------------------------
+
+
+
+   // ------------------------------------------------------------------------
+   // kwr::INCLUDE>>> Logic
+   // ////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////
+
 
    // Connect Tiny Tapeout outputs.
    // Note that my_design will be under /fpga_pins/fpga.

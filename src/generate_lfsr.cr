@@ -1,12 +1,15 @@
 ########################################################################
 ########################################################################
-# module
+# module ???
 ########################################################################
 
-########################################################################
-# example run command
-#    % crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic
-########################################################################
+    TOOL_DESCRIPTOR     = "LFSR generator"
+    TOOL_DESCRIPTXX     = "              "              # there's probably a way to do something like " "*(TOOL_DESCRIPTOR.size) but …
+
+    ########################################################################
+    # example run command
+    #    % crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic
+    ########################################################################
 
     # language and library setup
 
@@ -40,7 +43,7 @@
                       [ 9,  5],  #  9 # 512, QR(21) <= QR(20);
                       [10,  7],  # 10 # 1024, QR(20) <= QR(19);
                       [11,  9],  # 11 # 2048, QR(19) <= QR(18);
-                      NULL_2TAP, # 12# 4096, QR(18) <= QR(17);
+                      NULL_2TAP, # 12 # 4096, QR(18) <= QR(17);
                       NULL_2TAP, # 13 # 8192, QR(17) <= QR(16);
                       NULL_2TAP, # 14 # 16384, QR(16) <= QR(15);
                       [15, 14],  # 15 # 32768, QR(15) <= QR(14);
@@ -118,7 +121,7 @@
                       [ 9,  8,  6,  5],   #  9 # 512, QR(21) <= QR(20);
                       [10,  9,  7,  6],   # 10 # 1024, QR(20) <= QR(19);
                       [11, 10,  9,  7],   # 11 # 2048, QR(19) <= QR(18);
-                      [12, 11,  8,  6],   # 12# 4096, QR(18) <= QR(17);
+                      [12, 11,  8,  6],   # 12 # 4096, QR(18) <= QR(17);
                       [13, 12, 10,  9],   # 13 # 8192, QR(17) <= QR(16);
                       [14, 13, 11,  9],   # 14 # 16384, QR(16) <= QR(15);
                       [15, 14, 13, 11],   # 15 # 32768, QR(15) <= QR(14);
@@ -545,16 +548,16 @@
                 lfsr_length   = gen_opts.lfsr_length
                 lfsr_bound    = gen_opts.lfsr_bound
 
-                puts "module generate_mask"
+                puts "module generate_mask_#{n_taps}_taps"
                 puts "("
                 puts "    input   [#{index_width - 1}:0]    lfsr_length,"
-                puts "    output           mask_valid"
-                puts "    output  [#{lfsr_length - 1}:0]   mask_value,"
+                puts "    output           mask_valid,"
+                puts "    output  [#{lfsr_length - 1}:0]   mask_value"
                 puts ");"
                 puts ""
                 #puts "    always @(*)"
                 #puts "    begin"
-                puts "        case"
+                puts "        case (lfsr_length)"
 
                 in_lb   = 0
                 in_ub   = imin(lfsr_length - 1, lfsr_bound)
@@ -581,7 +584,12 @@
 
                     taps.each { | t | mask  = mask.sub((lfsr_length - 1) - t, "1"); }               # ugly, but i guess that's the breaks (faster to generate sequentially? i doubt it...)
 
-                    puts "               #{index_width}d#{i} : mask  = begin #{lfsr_length}b#{mask}; valid = #{valid}; end"
+                    # kwr::HACK!!!! fixes layout for two digits…
+                    if (i < 10)
+                        puts "               #{index_width}'d0#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = #{valid}; end"
+                    else
+                        puts "               #{index_width}'d#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = #{valid}; end"
+                    end # if
                 end # do
 
                 #mask    = "x" * lfsr_length                                                  # could we get hugely-better results with casex and "x"?
@@ -589,10 +597,15 @@
 
                 out_lb.upto(out_ub) \
                 do | i |
-                    puts "               #{index_width}d#{i} : begin mask  = #{lfsr_length}b#{mask}; valid  = 0; end"
+                    # kwr::HACK!!!! fixes layout for two digits…
+                    if (i < 10)
+                        puts "               #{index_width}'d0#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
+                    else
+                        puts "               #{index_width}'d#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
+                    end # if
                 end # do
 
-                puts "            default : begin mask  = #{lfsr_length}b#{mask}; valid  = 0; end"
+                puts "             default : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
                 puts "        endcase"
                 #puts "    end"
                 puts "endmodule"
@@ -604,7 +617,7 @@
                 puts "Feedback type #{gen_opts.type} unimplemented"
                 exit -1
             end # case type
-        end # def self.generate_module_feedback_mask
+        end # def self.generate_modules_feedback_mask
 
         #########
 
@@ -918,7 +931,7 @@
     ####################################
 
     parser  = OptionParser.new do | parser |
-        parser.banner = "Welcome to the LFSR generator!"
+        parser.banner = "Welcome to the #{TOOL_DESCRIPTOR}!"
 
         #########
 
@@ -1134,6 +1147,17 @@
 
     ####################################
 
+    # puts "ARGV      => #{ARGV}"
+    # puts "ARGV.size => #{ARGV.size}"
+
+    if (ARGV.size == 0)
+        puts "#{TOOL_DESCRIPTOR}: must specify generator options in command line"
+        puts "#{TOOL_DESCRIPTXX}      e.g., crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic"
+        puts ""
+        puts parser
+        exit -1
+    end
+    
     parser.parse
 
     if (!generated)
@@ -1157,6 +1181,6 @@
     end # do
 
 ########################################################################
-# end module
+# end module ???
 ########################################################################
 ########################################################################

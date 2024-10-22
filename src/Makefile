@@ -1,4 +1,4 @@
-all:		generate_lfsr lfsr.v
+all:		lfsr
 
 clean:		generate_lfsr lfsr.v
 	rm $^
@@ -14,9 +14,13 @@ LFSR_GEN_OPTS	= 	-Hv \
 			-L lfsr \
 			-T fib \
 			--generate modules \
-			--generate logic
+			--generate test
+
+#			--generate logic \
+@			--generate test
+
 lfsr.v:		generate_lfsr
 	./$< $(LFSR_GEN_OPTS) > $@
 
 lfsr:		lfsr.v
-	iverilog -o $@ $<
+	iverilog -v -o $@ $< >& $@.out

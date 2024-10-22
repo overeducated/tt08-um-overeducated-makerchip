@@ -26,47 +26,49 @@
 
     # **** could validate that LFSR[i][0] == i... ****
 
-    LFSR_INIT  = 0              # kwr::HACK--- using a 1 value rather than something smarter (and contained in the table for generality?)
+    lfsr_init_value  = 1              # kwr::HACK--- initializing to a 1 value rather than something smarter (and contained in the table for generality?)
 
     NULL_2TAP  = [-1, -1]
 
+    # **** this table uses 1-based taps, thus SIZE..1, not (SIZE-1)..0
+
     LFSR_2TAP  =  [
-                      NULL_2TAP, #  0 # **** [0] represents the invalid entry (can't have an LFSR with length 1!) ****
-                      NULL_2TAP, #  1 #
-                      [ 2,  1],  #  2 # 4, (This LFSR was tested and found to have period of 33554432 clock cycles)
-                      [ 3,  2],  #  3 # 8, if reset = '1' then
-                      [ 4,  3],  #  4 # 16, QR <= (others => '1');
-                      [ 5,  3],  #  5 # 32, elsif rising_edge(clk) THEN
-                      [ 6,  5],  #  6 # 64, QR(24) <= QR(23);
-                      [ 7,  6],  #  7 # 128, QR(23) <= QR(22);
-                      NULL_2TAP, #  8 # 256, QR(22) <= QR(21) XOR QR(24); -- tap 22
-                      [ 9,  5],  #  9 # 512, QR(21) <= QR(20);
-                      [10,  7],  # 10 # 1024, QR(20) <= QR(19);
-                      [11,  9],  # 11 # 2048, QR(19) <= QR(18);
-                      NULL_2TAP, # 12 # 4096, QR(18) <= QR(17);
-                      NULL_2TAP, # 13 # 8192, QR(17) <= QR(16);
-                      NULL_2TAP, # 14 # 16384, QR(16) <= QR(15);
-                      [15, 14],  # 15 # 32768, QR(15) <= QR(14);
-                      NULL_2TAP, # 16 # 65536, QR(14) <= QR(13);
-                      [17, 14],  # 17 # 131072, QR(13) <= QR(12);
-                      [18, 11],  # 18 # 262144, QR(12) <= QR(11);
-                      NULL_2TAP, # 19 # 524288, QR(11) <= QR(10);
-                      [20, 17],  # 20 # 1048576, QR(10) <= QR(9);
-                      [21, 19],  # 21 # 2097152, QR(9)  <= QR(8);
-                      [22, 21],  # 22 # 4194304, QR(8)  <= QR(7);
-                      [23, 18],  # 23 # 8388608, QR(7)  <= QR(6);
-                      NULL_2TAP, # 24 # 16777216, QR(6)  <= QR(5);
-                      [25, 22],  # 25 # 33554432, QR(5)  <= QR(4);
-                      NULL_2TAP, # 26 # 67108864, QR(4)  <= QR(3);
-                      NULL_2TAP, # 27 # 134217728, QR(3)  <= QR(2);
-                      [28, 25],  # 28 # 268435456, QR(2)  <= QR(1);
-                      [29, 27],  # 29 # 536870912, QR(1)  <= QR(0);
-                      NULL_2TAP, # 30 # 1073741824, QR(0) <= QR(24); -- tap 24
+                      NULL_2TAP, #  0 # **** [0] represents the invalid entry (can't have an 2-tap LFSR with length 0!) ****
+                      NULL_2TAP, #  1 # **** [0] represents the invalid entry (can't have an 2-tap LFSR with length 0!) ****
+                      [ 2,  1],  #  2 # 4,
+                      [ 3,  2],  #  3 # 8,
+                      [ 4,  3],  #  4 # 16,
+                      [ 5,  3],  #  5 # 32,
+                      [ 6,  5],  #  6 # 64,
+                      [ 7,  6],  #  7 # 128,
+                      NULL_2TAP, #  8 # 256,
+                      [ 9,  5],  #  9 # 512,
+                      [10,  7],  # 10 # 1024,
+                      [11,  9],  # 11 # 2048,
+                      NULL_2TAP, # 12 # 4096,
+                      NULL_2TAP, # 13 # 8192,
+                      NULL_2TAP, # 14 # 16384,
+                      [15, 14],  # 15 # 32768,
+                      NULL_2TAP, # 16 # 65536,
+                      [17, 14],  # 17 # 131072,
+                      [18, 11],  # 18 # 262144,
+                      NULL_2TAP, # 19 # 524288,
+                      [20, 17],  # 20 # 1048576,
+                      [21, 19],  # 21 # 2097152,
+                      [22, 21],  # 22 # 4194304,
+                      [23, 18],  # 23 # 8388608,
+                      NULL_2TAP, # 24 # 16777216,
+                      [25, 22],  # 25 # 33554432,
+                      NULL_2TAP, # 26 # 67108864,
+                      NULL_2TAP, # 27 # 134217728,
+                      [28, 25],  # 28 # 268435456,
+                      [29, 27],  # 29 # 536870912,
+                      NULL_2TAP, # 30 # 1073741824,
                       [31, 28],  # 31 # 2147483648,
-                      NULL_2TAP, # 32 # 4294967296, "if QR = ""000000000000000000000000"" then"
-                      [33, 20],  # 33 # 8589934592, QR <= (others => '1');
-                      NULL_2TAP, # 34 # 17179869184,        end if;
-                      [35, 33],  # 35 # 34359738368,    end if;
+                      NULL_2TAP, # 32 # 4294967296,
+                      [33, 20],  # 33 # 8589934592,
+                      NULL_2TAP, # 34 # 17179869184,
+                      [35, 33],  # 35 # 34359738368,
                       [36, 25],  # 36 # 68719476736,
                       NULL_2TAP, # 37 # 137439000000,
                       NULL_2TAP, # 38 # 274878000000,
@@ -108,43 +110,45 @@
 
     NULL_4TAP  = [-1, -1, -1, -1]
 
+    # **** this table uses 1-based taps, thus SIZE..1, not (SIZE-1)..0
+
     LFSR_4TAP  =  [
-                      NULL_4TAP,          #  0 # **** [0] represents the invalid entry (can't have an LFSR with length 1!) ****
-                      NULL_4TAP,          #  1 #
-                      NULL_4TAP,          #  2 # 4, (This LFSR was tested and found to have period of 33554432 clock cycles)
-                      NULL_4TAP,          #  3 # 8, if reset = '1' then
-                      NULL_4TAP,          #  4 # 16, QR <= (others => '1');
-                      [ 5,  4,  3,  2],   #  5 # 32, elsif rising_edge(clk) THEN
-                      [ 6,  5,  3,  2],   #  6 # 64, QR(24) <= QR(23);
-                      [ 7,  6,  5,  4],   #  7 # 128, QR(23) <= QR(22);
-                      [ 8,  6,  5,  4],   #  8 # 256, QR(22) <= QR(21) XOR QR(24); -- tap 22
-                      [ 9,  8,  6,  5],   #  9 # 512, QR(21) <= QR(20);
-                      [10,  9,  7,  6],   # 10 # 1024, QR(20) <= QR(19);
-                      [11, 10,  9,  7],   # 11 # 2048, QR(19) <= QR(18);
-                      [12, 11,  8,  6],   # 12 # 4096, QR(18) <= QR(17);
-                      [13, 12, 10,  9],   # 13 # 8192, QR(17) <= QR(16);
-                      [14, 13, 11,  9],   # 14 # 16384, QR(16) <= QR(15);
-                      [15, 14, 13, 11],   # 15 # 32768, QR(15) <= QR(14);
-                      [16, 14, 13, 11],   # 16 # 65536, QR(14) <= QR(13);
-                      [17, 16, 15, 14],   # 17 # 131072, QR(13) <= QR(12);
-                      [18, 17, 16, 13],   # 18 # 262144, QR(12) <= QR(11);
-                      [19, 18, 17, 14],   # 19 # 524288, QR(11) <= QR(10);
-                      [20, 19, 16, 14],   # 20 # 1048576, QR(10) <= QR(9);
-                      [21, 20, 19, 16],   # 21 # 2097152, QR(9)  <= QR(8);
-                      [22, 19, 18, 17],   # 22 # 4194304, QR(8)  <= QR(7);
-                      [23, 22, 20, 18],   # 23 # 8388608, QR(7)  <= QR(6);
-                      [24, 23, 21, 20],   # 24 # 16777216, QR(6)  <= QR(5);
-                      [25, 24, 23, 22],   # 25 # 33554432, QR(5)  <= QR(4);
-                      [26, 25, 24, 20],   # 26 # 67108864, QR(4)  <= QR(3);
-                      [27, 26, 25, 22],   # 27 # 134217728, QR(3)  <= QR(2);
-                      [28, 27, 24, 22],   # 28 # 268435456, QR(2)  <= QR(1);
-                      [29, 28, 27, 25],   # 29 # 536870912, QR(1)  <= QR(0);
-                      [30, 29, 26, 24],   # 30 # 1073741824, QR(0) <= QR(24); -- tap 24
+                      NULL_4TAP,          #  0 # **** [0] represents the invalid entry (can't have an 4-tap LFSR with length 0!) ****
+                      NULL_4TAP,          #  1 # **** [0] represents the invalid entry (can't have an 4-tap LFSR with length 1!) ****
+                      NULL_4TAP,          #  2 # **** [0] represents the invalid entry (can't have an 4-tap LFSR with length 2!) ****
+                      NULL_4TAP,          #  3 # **** [0] represents the invalid entry (can't have an 4-tap LFSR with length 3!) ****
+                      NULL_4TAP,          #  4 #
+                      [ 5,  4,  3,  2],   #  5 # 32,
+                      [ 6,  5,  3,  2],   #  6 # 64,
+                      [ 7,  6,  5,  4],   #  7 # 128,
+                      [ 8,  6,  5,  4],   #  8 # 256,
+                      [ 9,  8,  6,  5],   #  9 # 512,
+                      [10,  9,  7,  6],   # 10 # 1024,
+                      [11, 10,  9,  7],   # 11 # 2048,
+                      [12, 11,  8,  6],   # 12 # 4096,
+                      [13, 12, 10,  9],   # 13 # 8192,
+                      [14, 13, 11,  9],   # 14 # 16384,
+                      [15, 14, 13, 11],   # 15 # 32768,
+                      [16, 14, 13, 11],   # 16 # 65536,
+                      [17, 16, 15, 14],   # 17 # 131072,
+                      [18, 17, 16, 13],   # 18 # 262144,
+                      [19, 18, 17, 14],   # 19 # 524288,
+                      [20, 19, 16, 14],   # 20 # 1048576,
+                      [21, 20, 19, 16],   # 21 # 2097152,
+                      [22, 19, 18, 17],   # 22 # 4194304,
+                      [23, 22, 20, 18],   # 23 # 8388608,
+                      [24, 23, 21, 20],   # 24 # 16777216,
+                      [25, 24, 23, 22],   # 25 # 33554432,
+                      [26, 25, 24, 20],   # 26 # 67108864,
+                      [27, 26, 25, 22],   # 27 # 134217728,
+                      [28, 27, 24, 22],   # 28 # 268435456,
+                      [29, 28, 27, 25],   # 29 # 536870912,
+                      [30, 29, 26, 24],   # 30 # 1073741824,
                       [31, 30, 29, 28],   # 31 # 2147483648,
-                      [32, 30, 26, 25],   # 32 # 4294967296, "if QR = ""000000000000000000000000"" then"
-                      [33, 32, 29, 27],   # 33 # 8589934592, QR <= (others => '1');
-                      [34, 31, 30, 26],   # 34 # 17179869184,        end if;
-                      [35, 34, 28, 27],   # 35 # 34359738368,    end if;
+                      [32, 30, 26, 25],   # 32 # 4294967296,
+                      [33, 32, 29, 27],   # 33 # 8589934592,
+                      [34, 31, 30, 26],   # 34 # 17179869184,
+                      [35, 34, 28, 27],   # 35 # 34359738368,
                       [36, 35, 29, 28],   # 36 # 68719476736,
                       [37, 36, 33, 31],   # 37 # 137439000000,
                       [38, 37, 33, 32],   # 38 # 274878000000,
@@ -226,6 +230,7 @@
         # All
         Modules
         Logic
+        Test
     end # enum
 
     ##################
@@ -238,11 +243,10 @@
         property  language
 
         property  type
-        property  lfsr_length
-        #property  lfsr_n_taps                    # shouldn't this one be obvious?
-        property  lfsr_init
-        property  lfsr_width
-        property  lfsr_bound
+        property  lfsr_init_value
+        property  lfsr_length_bound
+        property  lfsr_length_max
+        property  lfsr_length_size
 
         #property  tap_table
         #property  tap_table_null
@@ -262,11 +266,10 @@
         @language           : Language
 
         @type               : Type
-        @lfsr_length        : Int32
-        #@lfsr_n_taps        : Int32
-        @lfsr_init          : Int32             # could be inadequate; instead, could be an array of non-zero bits which should be set using a generated sequence of (1 << a[i]) | ...
-        @lfsr_width         : Int32
-        @lfsr_bound         : Int32
+        @lfsr_init_value    : Int32             # could be inadequate; instead, could be an array of non-zero bits which should be set using a generated sequence of (1 << a[i]) | ...
+        @lfsr_length_bound  : Int32
+        @lfsr_length_max    : Int32
+        @lfsr_length_size   : Int32
 
         #@tap_table          : Array(Array(Int32))
         #@tap_table_null     : Array(Int32)
@@ -287,11 +290,10 @@
             @language           = Language::Unknown
 
             @type               = Type::Unknown
-            @lfsr_length        = 0
-            #@lfsr_n_taps        = 0
-            @lfsr_init          = 0             # kwr::GUESS--- likely invalid for all LFSR but should be smarter about it (and -1 is so signed...)
-            @lfsr_width         = 0
-            @lfsr_bound         = 0
+            @lfsr_init_value    = 0
+            @lfsr_length_bound  = 0
+            @lfsr_length_max    = 0
+            @lfsr_length_size   = 0
 
             #@tap_table          = [] of Array(Int32)
             #@tap_table_null     = [] of Int32
@@ -322,6 +324,9 @@
                   when "logic"
                     @what  = Generate::Logic
 
+                  when "test"
+                    @what  = Generate::Test
+
                   else
                     puts "Don't know how to generate output for #{what}"
                     exit -1
@@ -343,9 +348,10 @@
 
             #########
 
-            #if ((@lfsr_length < 2) || (@lfsr_length > @tap_table_max))
-            if (@lfsr_length < 2)
-                puts "LFSR length #{@lfsr_length} must be at least 2"
+            # kwr::WARN!!!! this test only works for a two-tap configuration; it fails for a four-tap configuration (but is verified later during generation????)
+            #if ((@lfsr_length_max < 2) || (@lfsr_length_max > @tap_table_max))
+            if ((@lfsr_length_max < 2) || (@lfsr_length_bound < 2))
+                puts "LFSR length maximum #{@lfsr_length_max} and bound #{@lfsr_length_bound} must be at least 2"
                 exit -1
             end # if
 
@@ -358,8 +364,8 @@
 
             #########
 
-            if (@lfsr_init == 0)
-                puts "LFSR initial value #{@lfsr_init} must be specified (and be non-zero!)"
+            if (@lfsr_init_value == 0)
+                puts "LFSR initial value #{@lfsr_init_value} must be specified (and be non-zero!)"
                 exit -1
             end # if
 
@@ -400,9 +406,9 @@
 
             #########
 
-            #which_taps  = @tap_table[@lfsr_length]
+            #which_taps  = @tap_table[@lfsr_length_max]
             #if (which_taps == @tap_table_null)
-            #    puts "There is no valid LSFR of length #{@lfsr_length} with #{@n_taps} taps"
+            #    puts "There is no valid LSFR of length #{@lfsr_length_max} with #{@n_taps} taps"
             #    exit -1
             #elsif (which_taps.size != @n_taps)
             #    puts "Mismatch between number of taps specified in the tap table #{which_taps.size} and the requested #{@n_taps}"
@@ -480,7 +486,7 @@
                     VHDL_Generator           .generate_modules(gen_opts)
 
                   else
-                    puts "Don't know how to generate RTL for #{lang}"
+                    puts "Don't know how to generate modules RTL for #{lang}"
                     exit -1
                 end # case
 
@@ -496,7 +502,23 @@
                     VHDL_Generator           .generate_logic(gen_opts)
 
                   else
-                    puts "Don't know how to generate RTL for #{lang}"
+                    puts "Don't know how to generate logic RTL for #{lang}"
+                    exit -1
+                end # case
+
+              when Generate::Test
+                case (lang)
+                  when Language::Verilog
+                    Verilog_Generator        .generate_test(gen_opts)
+
+                  when Language::SystemVerilog
+                    SystemVerilog_Generator  .generate_test(gen_opts)
+
+                  when Language::VHDL
+                    VHDL_Generator           .generate_test(gen_opts)
+
+                  else
+                    puts "Don't know how to generate test RTL for #{lang}"
                     exit -1
                 end # case
 
@@ -534,40 +556,42 @@
                 exit -1
             end # case
 
-            lfsr_length  = gen_opts.lfsr_length
+            lfsr_length_bound  = gen_opts.lfsr_length_bound
 
             # kwr::QUERY??? should we instead cap it at the maximum size and warn the user?
-            if (lfsr_length > tap_table_max)
-                puts "LFSR length #{lfsr_length} greater than the tap-table maximum value #{tap_table_max}"
+            if (lfsr_length_bound > tap_table_max)
+                puts "LFSR length #{lfsr_length_bound} is greater than the tap-table maximum length #{tap_table_max}"
                 exit -1
             end
 
             case (gen_opts.type)
               when Type::Fibonacci
-                index_width   = gen_opts.lfsr_width
-                lfsr_length   = gen_opts.lfsr_length
-                lfsr_bound    = gen_opts.lfsr_bound
+                lfsr_length_max   = gen_opts.lfsr_length_max
+                lfsr_length_size  = gen_opts.lfsr_length_size
 
-                puts "module generate_mask_#{n_taps}_taps"
+                puts "module generate_mask_fibonacci_#{n_taps}_taps"
                 puts "("
-                puts "    input   [#{index_width - 1}:0]    lfsr_length,"
-                puts "    output           mask_valid,"
-                puts "    output  [#{lfsr_length - 1}:0]   mask_value"
-                puts ");"
+                puts "    input       [#{lfsr_length_size - 1}:0]    lfsr_length,"
+
                 puts ""
-                #puts "    always @(*)"
-                #puts "    begin"
+
+                puts "    output reg  [#{lfsr_length_max  - 1}:0]   mask_value,"
+                puts "    output reg           mask_valid"
+                puts ");"
+
+                puts ""
+
+                puts "    always @(*)"
+                puts "    begin"
                 puts "        case (lfsr_length)"
 
                 in_lb   = 0
-                in_ub   = imin(lfsr_length - 1, lfsr_bound)
+                in_ub   = imin(lfsr_length_max, lfsr_length_bound) - 1
 
-                out_lb  = in_ub + 1
-                out_ub  = lfsr_bound - 1
                 in_lb.upto(in_ub) \
                 do | i |
                     if (i > tap_table_max)
-                        puts "Unexpected invalid LFSR length #{lfsr_length} > #{lfsr_bound}"
+                        puts "Unexpected invalid LFSR length #{i} > #{tap_table_max}"
                     end # if
 
                     taps  = tap_table[i]
@@ -580,34 +604,45 @@
                         valid  = 0
                     end # if
 
-                    mask  = "0" * lfsr_length
+                    # kwr::FIXME!!!! inefficient code…
+                    # generate the mask inefficiently due to crystal strings behavior
+                    # as this approach generates ~lfsr_length_max strings
+                    # which could be done quicker by testing for index inclusion in the taps array
+                    # but … this version seems to work … which is good enough for now!
 
-                    taps.each { | t | mask  = mask.sub((lfsr_length - 1) - t, "1"); }               # ugly, but i guess that's the breaks (faster to generate sequentially? i doubt it...)
+                    mask  = "0" * lfsr_length_max
+
+                    # **** the tables use 1-based taps, thus SIZE..1, not (SIZE-1)..0
+                    taps.each { | t | mask  = mask.sub(lfsr_length_max - t, "1"); }
 
                     # kwr::HACK!!!! fixes layout for two digits…
                     if (i < 10)
-                        puts "               #{index_width}'d0#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = #{valid}; end"
+                        puts "               #{lfsr_length_size}'d0#{i} : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = #{valid}; end"
                     else
-                        puts "               #{index_width}'d#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = #{valid}; end"
+                        puts  "               #{lfsr_length_size}'d#{i} : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = #{valid}; end"
                     end # if
                 end # do
 
-                #mask    = "x" * lfsr_length                                                  # could we get hugely-better results with casex and "x"?
-                mask    = "0" * lfsr_length
+                out_lb  = in_ub + 1
+                out_ub  = lfsr_length_bound - 1
+
+                #mask    = "x" * lfsr_length_max                                                  # could we get hugely-better results with casex and "x"?
+                mask    = "0" * lfsr_length_max
 
                 out_lb.upto(out_ub) \
                 do | i |
                     # kwr::HACK!!!! fixes layout for two digits…
                     if (i < 10)
-                        puts "               #{index_width}'d0#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
+                        puts "               #{lfsr_length_size}'d0#{i} : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = 0; end"
                     else
-                        puts "               #{index_width}'d#{i} : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
+                        puts "               #{lfsr_length_size}'d#{i} : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = 0; end"
                     end # if
                 end # do
 
-                puts "             default : begin mask  = #{lfsr_length}'b#{mask}; valid  = 0; end"
+                puts "             default : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = 0; end"
                 puts "        endcase"
-                #puts "    end"
+# puts "$display(#{DQ}$$$$ n_taps=#{n_taps} lfsr_length=%d, mask_value=0b%064b mask_valid=0b%b#{DQ}, lfsr_length, mask_value, mask_valid);"
+                puts "    end"
                 puts "endmodule"
 
               # when Type::Galois
@@ -622,47 +657,128 @@
         #########
 
         def self.generate_modules_shift_register(gen_opts)
-                clock_symbol    = gen_opts.clock_symbol
-                clock_polarity  = gen_opts.clock_polarity
+            clock_symbol      = gen_opts.clock_symbol
+            clock_polarity    = gen_opts.clock_polarity
 
-                reset_symbol    = gen_opts.reset_symbol
-                reset_polarity  = gen_opts.reset_polarity
+            reset_symbol      = gen_opts.reset_symbol
+            reset_polarity    = gen_opts.reset_polarity
 
-                lfsr_length     = gen_opts.lfsr_length
-                lfsr_init       = gen_opts.lfsr_init
+            lfsr_length_max   = gen_opts.lfsr_length_max
+            lfsr_length_size  = gen_opts.lfsr_length_size
+            lfsr_init_value   = gen_opts.lfsr_init_value
 
-                puts "module lfsr_fibonacci"
-                puts "("
-                puts "    input             clk,"
-                puts "    input             rst_n,"
-                puts "    input             lfsr_hold,"
-                puts "    input             mask_valid,"
-                puts "    input   [#{lfsr_length - 1}:0]    mask_value,"
-                puts "    output  [#{lfsr_length - 1}:0]    lfsr_value"
-                puts ");"
-                puts ""
-                puts "    reg     [#{lfsr_length - 1}:0]    sr_value;"
-                puts ""
-                puts "    always @(#{polarity?(clock_polarity, pos: "posedge", neg: "negedge")} clk)"
-                puts "    begin"
-                puts "        if      (not mask_valid)"
-                puts "            lfsr  <= #{lfsr_length}d0;"
-                puts "        else if (rst_n)"
-                                    # should lfsr_init be in the table as length-dependent?
-                                    # or are all maximal-length lfsr 2^n - 1 with 0 being the only stable state?
-                puts "            lfsr  <= #{lfsr_length}d#{lfsr_init};"
-                puts "        else if (lfsr_hold)"
-                puts "            // don't change lfsr state"
-                puts "        else"
-                puts "            sr_value  <= { sr_value[#{lfsr_length - 2}:0], ^(sr_value & mask_value) };"
-                puts "        end"
-                puts ""
-                #puts "        always @(*)"
-                #puts "        begin"
-                puts "            lfsr_value  = sr_value"
-                #puts "        end"
-                puts "    end"
-                puts "endmodule"
+            puts "module lfsr_fibonacci"
+            puts "("
+            puts "    input                 clk,"
+            puts "    input                 rst_n,"
+
+            puts "    input                 lfsr_hold,"
+            puts "    input        [#{lfsr_length_size - 1}:0]    lfsr_length,"
+            puts "    input                 lfsr_n_taps,"
+
+            puts "    input       [#{lfsr_length_max  - 1}:0]    lfsr_value_prev,"
+            puts "    input                 lfsr_valid_prev,"
+
+            puts ""
+
+            puts "    output reg  [#{lfsr_length_max - 1}:0]    lfsr_value,"
+            puts "    output reg            lfsr_valid"
+            puts ");"
+
+            puts ""
+
+            puts "    wire        [#{lfsr_length_max - 1}:0]    mask_value_2_taps;"
+            puts "    wire                  mask_valid_2_taps;"
+
+            puts ""
+
+            puts "    generate_mask_fibonacci_2_taps    gmf2t"
+            puts "    ("
+            puts "        .lfsr_length(lfsr_length),"
+            puts "        .mask_value(mask_value_2_taps),"
+            puts "        .mask_valid(mask_valid_2_taps)"
+            puts "    );"
+
+            puts "    wire        [#{lfsr_length_max - 1}:0]    mask_value_4_taps;"
+            puts "    wire                  mask_valid_4_taps;"
+
+            puts ""
+
+            puts "    generate_mask_fibonacci_4_taps    gmf4t"
+            puts "    ("
+            puts "        .lfsr_length(lfsr_length),"
+            puts "        .mask_value(mask_value_4_taps),"
+            puts "        .mask_valid(mask_valid_4_taps)"
+            puts "    );"
+
+            puts ""
+
+            puts "    reg         [#{lfsr_length_max - 1}:0]    mask_value;"
+            puts "    reg                   mask_valid;"
+
+            puts ""
+
+            puts "    always @(*)"
+            puts "    begin"
+            puts "        if      (lfsr_n_taps)"
+            puts "          begin"
+            puts "            mask_value  <= mask_value_4_taps;"
+            puts "            mask_valid  <= mask_valid_4_taps;"
+            puts "          end"
+            puts "        else"
+            puts "          begin"
+            puts "            mask_value  <= mask_value_2_taps;"
+            puts "            mask_valid  <= mask_valid_2_taps;"
+            puts "          end"
+            puts "        // endif"
+# puts "$display(#{DQ}$$$$ lfsr_n_taps=0b%0b lfsr_length=%d, mask_value=0b%064b mask_valid=0b%b#{DQ}, lfsr_n_taps, lfsr_length, mask_value, mask_valid);"
+            puts "    end"
+
+            puts ""
+
+            puts "    always @(#{polarity?(clock_polarity, pos: "posedge ", neg: "negedge ")}#{clock_symbol} or #{polarity?(reset_polarity, pos: "posedge ", neg: "negedge ")}#{reset_symbol})"
+            puts "    begin"
+
+            puts "        if      (lfsr_hold)"
+            puts "          begin"
+puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
+            puts "            lfsr_value  <= lfsr_value_prev;"
+            puts "            lfsr_valid  <= lfsr_valid_prev;"
+            puts "          end"
+
+            puts "        else if (~mask_valid)"
+                                # should lfsr_invalid_value but specified somewhere?
+                                # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
+            puts "          begin"
+puts "$display(#{DQ}.... .... lfsr mask invalid#{DQ});"
+            puts "            lfsr_value  <= #{lfsr_length_max}'d0;"
+            puts "            lfsr_valid  <= 0;"
+            puts "          end"
+
+            puts "        else if (#{polarity?(reset_polarity, pos: "", neg: "~")}#{reset_symbol})"
+                                # should lfsr_init_value be specified in the table (at the 0-length position?) as tap-dependent?
+                                # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
+            puts "          begin"
+puts "$display(#{DQ}.... .... reset#{DQ});"
+            puts "            lfsr_value  <= #{lfsr_length_max}'d#{lfsr_init_value};"
+            puts "            lfsr_valid  <= 1;"
+            puts "          end"
+
+            puts "        else"
+            puts "          begin"
+puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
+
+            puts "            // shift the previous value and add in the computed (reduced) feedback value"
+            puts "            lfsr_value  <= { lfsr_value_prev[#{lfsr_length_max - 2}:0], ^(lfsr_value_prev & mask_value) };"
+            puts "            lfsr_valid  <= 1;"
+            puts "          end"
+            puts "        // endif"
+
+            puts ""
+
+            puts "    end"
+
+            puts "endmodule"
         end # def self.generate_module_shift_register
 
         ##################
@@ -700,11 +816,11 @@
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`endif _tt_kwr_lfsr__modules_"
+            puts "`endif // _tt_kwr_lfsr__modules_"
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
-            puts "// @END Logic\n"
+            puts "// @END Modules\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
         end # def self.generate_modules
 
@@ -732,10 +848,10 @@
                 end
             end
 
-            lfsr_length     = gen_opts.lfsr_length
+            lfsr_length_max     = gen_opts.lfsr_length_max
 
-            if (lfsr_length > 64)
-                puts "Logic implementation assumes no more than 6 bits which limits LFSR length to 64b, provided #{lfsr_length}"
+            if (lfsr_length_max > 64)
+                puts "Logic implementation assumes no more than 6 bits which limits LFSR length to 64b, provided #{lfsr_length_max}b"
                 exit -1
             end
 
@@ -764,7 +880,7 @@
 
             puts ""
 
-            puts "    wire    [5:0]     lfsr_length;"
+            puts "    wire    [5:0]     lfsr_length_max;"
             puts "    wire              lfsr_type;"
             #puts "    wire              lfsr_hold;"
             puts ""
@@ -777,15 +893,15 @@
             puts ""
             #puts "    always (*)"
             #puts "    begin"
-            puts "        uio_oe       = 8b1111_1111;"
+            puts "        uio_oe           = 8b1111_1111;"
             #puts "    end"
             puts ""
             #puts "    always (*)"
             #puts "    begin"
             # should there be a lsfr_load to latch length and type?
-            puts "        lfsr_length  = ui_in[5:0];"       # should we latch this one?
-            puts "        lfsr_type    = ui_in[6];"         # we don't care for the moment, but should we latch this one?
-            puts "        lfsr_hold    = ui_in[7];"
+            puts "        lfsr_length_max  = ui_in[5:0];"       # should we latch this one?
+            puts "        lfsr_type        = ui_in[6];"         # we don't care for the moment, but should we latch this one?
+            puts "        lfsr_hold        = ui_in[7];"
 
             puts "        #{clock_symbol}  = #{polarity?(clock_polarity, pos: "",    neg: "!")}clk;"
             puts "        #{reset_symbol}  = #{polarity?(reset_polarity, pos: "not", neg: "")}rst_n;"
@@ -819,14 +935,190 @@
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`endif _tt_kwr_lfsr__logic_"
+            puts "`endif // _tt_kwr_lfsr__logic_"
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// @END Logic\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
-
         end # def generate_logic
+
+        #########
+
+        def self.generate_test(gen_opts) : Nil
+            clock_symbol      = gen_opts.clock_symbol
+            clock_polarity    = gen_opts.clock_polarity
+
+            reset_symbol      = gen_opts.reset_symbol
+            reset_polarity    = gen_opts.reset_polarity
+
+            lfsr_length_max   = gen_opts.lfsr_length_max
+            lfsr_length_size  = gen_opts.lfsr_length_size
+            lfsr_init_value   = gen_opts.lfsr_init_value
+
+            lfsr_length       = 7
+            lfsr_value_prev   = 0x69        # “random” 7b value…
+            lfsr_value_mask   = 2**lfsr_length - 1
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @BEGIN Test\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+            puts "`ifndef _tt_kwr_lfsr__test_"
+            puts "`define _tt_kwr_lfsr__test_"
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "// ... test code goes here ...."
+            puts ""
+
+            puts "module test;"
+
+            puts "    reg                   clk;"
+            puts "    reg                   rst_n;"
+
+            puts "    reg                   lfsr_hold;"
+            puts "    reg          [#{lfsr_length_size - 1}:0]    lfsr_length;"
+            puts "    reg                   lfsr_n_taps;"
+
+            puts "    reg         [#{lfsr_length_max  - 1}:0]    lfsr_value_prev;"
+
+            puts ""
+
+            puts "    wire        [#{lfsr_length_max - 1}:0]    lfsr_value;"
+            puts "    wire                  lfsr_valid;"
+
+            puts ""
+
+            puts "    lfsr_fibonacci    lf"
+            puts "    ("
+            puts "        .clk(clk),"
+            puts "        .rst_n(rst_n),"
+            puts "        .lfsr_hold(lfsr_hold),"
+            puts "        .lfsr_length(lfsr_length),"
+            puts "        .lfsr_n_taps(lfsr_n_taps),"
+            puts "        .lfsr_value_prev(lfsr_value_prev),"
+            puts "        .lfsr_value(lfsr_value),"
+            puts "        .lfsr_valid(lfsr_valid)"
+            puts "    );"
+
+            puts ""
+
+            puts "    integer               cycle;"
+
+            puts ""
+
+            puts "    initial"
+            puts "    begin"
+
+            puts "        cycle             = 0;"
+            puts "        $display(#{DQ}#### cycle = %d#{DQ}, cycle);"
+
+            puts "        clk               = 0;"
+            puts "        rst_n             = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        lfsr_hold         = 0;"
+            puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
+            puts "        lfsr_n_taps       = 0;"
+            puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"
+
+            puts ""
+
+            puts "        #50;"
+            puts "        rst_n             = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        #50;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #50;"
+            puts "        rst_n             = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        #50;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "    end"
+
+            puts ""
+
+            puts "    always"
+            puts "    begin"
+
+            puts "        cycle             = cycle + 1;"
+
+            puts ""
+
+            puts "        if (cycle > 100)    $finish;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts "    end"
+
+            puts "endmodule"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+            puts "`endif // _tt_kwr_lfsr__test_"
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @END Test\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+        end # def self.generate_test    end # class Verilog_Generator
     end # class Verilog_Generator
 
     ####################################
@@ -847,6 +1139,13 @@
             puts "#{self.name}.generate_logic(gen_opts) is not implemented"
             exit -1
         end # def self.generate_modules
+
+        #########
+
+        def self.generate_test(gen_opts)
+            puts "#{self.name}.generate_test(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_test
     end # class SystemVerilog_Generator
 
     ####################################
@@ -866,7 +1165,14 @@
         def self.generate_logic(gen_opts)
             puts "#{self.name}.generate_logic(gen_opts) is not implemented"
             exit -1
-        end # def self.generate_modules
+        end # def self.generate_logic
+
+        #########
+
+        def self.generate_test(gen_opts)
+            puts "#{self.name}.generate_test(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_test
     end # class HDL_Generator
 
     ########################################################################
@@ -1008,7 +1314,7 @@
                 exit -1
 
             else
-                options.lfsr_init    = itest
+                options.lfsr_init_value    = itest
             end # if
 
             generated            = false
@@ -1016,48 +1322,48 @@
 
         #########
 
-        parser.on "-n N", "--length=N", "Specify (maximum) LFSR length" \
+        parser.on "-n N", "--width=N", "Specify (maximum) LFSR width" \
         do | n |
-            ltest  = n.to_i?
+            wtest  = n.to_i?
 
-            if    (ltest.nil?)
-                puts "LFSR length must be a smallish integer (provided #{n})"
+            if    (wtest.nil?)
+                puts "LFSR maximum width must be a smallish integer (provided #{n})"
                 exit -1
 
             else
-                options.lfsr_length  = ltest
+                options.lfsr_length_bound  = wtest
 
                 # there's certainly a trivial-enough mathematical approach
-                #     width  = log2(ltest).ceil
+                #     width  = log2(wtest).ceil
                 #     bound  = 1 << (width - 1)
                 # but i don't wan't to figure out how to do it (and debug it) in crystal right now.
 
-                if    (ltest <  2)
-                    options.lfsr_width  =  1
-                    options.lfsr_bound  =  2
+                if    (wtest <=  2)
+                    options.lfsr_length_size   =  1
+                    options.lfsr_length_max    =  2
 
-                elsif (ltest <  4)
-                    options.lfsr_width  =  2
-                    options.lfsr_bound  =  4
+                elsif (wtest <=  4)
+                    options.lfsr_length_size   =  2
+                    options.lfsr_length_max    =  4
 
-                elsif (ltest <  8)
-                    options.lfsr_width  =  3
-                    options.lfsr_bound  =  8
+                elsif (wtest <=  8)
+                    options.lfsr_length_size   =  3
+                    options.lfsr_length_max    =  8
 
-                elsif (ltest < 16)
-                    options.lfsr_width  =  4
-                    options.lfsr_bound  = 16
+                elsif (wtest <= 16)
+                    options.lfsr_length_size   =  4
+                    options.lfsr_length_max    = 16
 
-                elsif (ltest < 32)
-                    options.lfsr_width  =  5
-                    options.lfsr_bound  = 32
+                elsif (wtest <= 32)
+                    options.lfsr_length_size   =  5
+                    options.lfsr_length_max    = 32
 
-                elsif (ltest < 64)
-                    options.lfsr_width  =  6
-                    options.lfsr_bound  = 64
+                elsif (wtest <= 64)
+                    options.lfsr_length_size   =  6
+                    options.lfsr_length_max    = 64
 
                 else
-                    puts "Length #{ltest} is greater than 64 which is not supported by the current RTL model"
+                    puts "LFSR (maximum) width #{wtest} is greater than 64 (exceeds 6 bits) which is not supported by the current RTL model"
                 end # if
             end # if
 
@@ -1152,12 +1458,12 @@
 
     if (ARGV.size == 0)
         puts "#{TOOL_DESCRIPTOR}: must specify generator options in command line"
-        puts "#{TOOL_DESCRIPTXX}      e.g., crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic"
+        puts "#{TOOL_DESCRIPTXX}      e.g., crystal run --error-trace lfsr.cr -- -Hv -i1 -n34 -C +clk -R -rst_n -L lfsr -T fib --generate modules --generate logic --generate test"
         puts ""
         puts parser
         exit -1
     end
-    
+
     parser.parse
 
     if (!generated)

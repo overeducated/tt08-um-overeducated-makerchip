@@ -228,9 +228,11 @@
         Unknown
         #
         # All
+        Header
         Modules
         Logic
-        Test
+        Test_LFSR
+        Test_Logic
     end # enum
 
     ##################
@@ -318,17 +320,23 @@
                 wtest  = what.downcase
 
                 case (what)
+                  when "header"
+                    @what  = Generate::Header
+
                   when "modules"
                     @what  = Generate::Modules
 
                   when "logic"
                     @what  = Generate::Logic
 
-                  when "test"
-                    @what  = Generate::Test
+                  when "test_lfsr"
+                    @what  = Generate::Test_LFSR
+
+                  when "test_logic"
+                    @what  = Generate::Test_Logic
 
                   else
-                    puts "Don't know how to generate output for #{what}"
+                    puts "Don't know how to generate #{what}"
                     exit -1
                 end # case
             end # if
@@ -474,6 +482,22 @@
             #end # case
 
             case (what)
+              when Generate::Header
+                case (lang)
+                  when Language::Verilog
+                    Verilog_Generator        .generate_header(gen_opts)
+
+                  when Language::SystemVerilog
+                    SystemVerilog_Generator  .generate_header(gen_opts)
+
+                  when Language::VHDL
+                    VHDL_Generator           .generate_header(gen_opts)
+
+                  else
+                    puts "Don't know how to generate modules RTL for #{lang}"
+                    exit -1
+                end # case
+
               when Generate::Modules
                 case (lang)
                   when Language::Verilog
@@ -506,19 +530,35 @@
                     exit -1
                 end # case
 
-              when Generate::Test
+              when Generate::Test_LFSR
                 case (lang)
                   when Language::Verilog
-                    Verilog_Generator        .generate_test(gen_opts)
+                    Verilog_Generator        .generate_test_lfsr(gen_opts)
 
                   when Language::SystemVerilog
-                    SystemVerilog_Generator  .generate_test(gen_opts)
+                    SystemVerilog_Generator  .generate_test_lfsr(gen_opts)
 
                   when Language::VHDL
-                    VHDL_Generator           .generate_test(gen_opts)
+                    VHDL_Generator           .generate_test_lfsr(gen_opts)
 
                   else
-                    puts "Don't know how to generate test RTL for #{lang}"
+                    puts "Don't know how to generate test_lfsr RTL for #{lang}"
+                    exit -1
+                end # case
+
+              when Generate::Test_Logic
+                case (lang)
+                  when Language::Verilog
+                    Verilog_Generator        .generate_test_logic(gen_opts)
+
+                  when Language::SystemVerilog
+                    SystemVerilog_Generator  .generate_test_logic(gen_opts)
+
+                  when Language::VHDL
+                    VHDL_Generator           .generate_test_logic(gen_opts)
+
+                  else
+                    puts "Don't know how to generate test_logic RTL for #{lang}"
                     exit -1
                 end # case
 
@@ -536,6 +576,50 @@
         HDL_Generator.add_subclass(Language::Verilog, self)
 
         #########
+
+        def self.generate_header(gen_opts) : Nil
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @BEGIN Header"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "`ifndef _tt09_kwr_lfsr__header_"
+            puts "`define _tt09_kwr_lfsr__header_"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "// ////////////////////////////////////"
+            puts "// Copyright (c) 2024 Kevin W. Rudd"
+            puts "// SPDX-License-Identifier: Apache-2.0"
+            puts "// ////////////////////////////////////"
+
+            puts ""
+
+            puts "`default_nettype    none"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "`endif // _tt09_kwr_lfsr__header_"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @END Header\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+        end # def self.generate_modules
+
+        ##################
 
         def self.generate_modules_feedback_mask(gen_opts, n_taps)
             case n_taps
@@ -571,7 +655,7 @@
 
                 puts "module generate_mask_fibonacci_#{n_taps}_taps"
                 puts "("
-                puts "    input       [#{lfsr_length_size - 1}:0]    lfsr_length,"
+                puts "    input  wire [#{lfsr_length_size - 1}:0]    lfsr_length,"
 
                 puts ""
 
@@ -642,8 +726,8 @@
                 puts "             default : begin mask_value  <= #{lfsr_length_max}'b#{mask}; mask_valid  = 0; end"
                 puts "        endcase"
 # puts "$display(#{DQ}$$$$ n_taps=#{n_taps} lfsr_length=%d, mask_value=0b%064b mask_valid=0b%b#{DQ}, lfsr_length, mask_value, mask_valid);"
-                puts "    end"
-                puts "endmodule"
+                puts "    end // always"
+                puts "endmodule // generate_mask_fibonacci_"
 
               # when Type::Galois
               #   # TBD....
@@ -669,15 +753,15 @@
 
             puts "module lfsr_fibonacci"
             puts "("
-            puts "    input                 clk,"
-            puts "    input                 rst_n,"
+            puts "    input  wire           clk,"
+            puts "    input  wire           rst_n,"
 
-            puts "    input                 lfsr_hold,"
-            puts "    input        [#{lfsr_length_size - 1}:0]    lfsr_length,"
-            puts "    input                 lfsr_n_taps,"
+            puts "    input  wire           lfsr_hold,"
+            puts "    input  wire  [#{lfsr_length_size - 1}:0]    lfsr_length,"
+            puts "    input  wire           lfsr_n_taps,"
 
-            puts "    input       [#{lfsr_length_max  - 1}:0]    lfsr_value_prev,"
-            puts "    input                 lfsr_valid_prev,"
+            puts "    input  wire [#{lfsr_length_max  - 1}:0]    lfsr_value_prev,"
+            puts "    input  wire           lfsr_valid_prev,"
 
             puts ""
 
@@ -698,6 +782,8 @@
             puts "        .mask_value(mask_value_2_taps),"
             puts "        .mask_valid(mask_valid_2_taps)"
             puts "    );"
+
+            puts ""
 
             puts "    wire        [#{lfsr_length_max - 1}:0]    mask_value_4_taps;"
             puts "    wire                  mask_valid_4_taps;"
@@ -732,7 +818,7 @@
             puts "          end"
             puts "        // endif"
 # puts "$display(#{DQ}$$$$ lfsr_n_taps=0b%0b lfsr_length=%d, mask_value=0b%064b mask_valid=0b%b#{DQ}, lfsr_n_taps, lfsr_length, mask_value, mask_valid);"
-            puts "    end"
+            puts "    end // always"
 
             puts ""
 
@@ -776,9 +862,9 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts ""
 
-            puts "    end"
+            puts "    end // always"
 
-            puts "endmodule"
+            puts "endmodule // lfsr_fibonacci"
         end # def self.generate_module_shift_register
 
         ##################
@@ -789,34 +875,44 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`ifndef _tt_kwr_lfsr__modules_"
-            puts "`define _tt_kwr_lfsr__modules_"
+
+            puts "`ifndef _tt09_kwr_lfsr__modules_"
+            puts "`define _tt09_kwr_lfsr__modules_"
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
+
             self.generate_modules_feedback_mask(gen_opts, 2)
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
+
             self.generate_modules_feedback_mask(gen_opts, 4)
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
+
             self.generate_modules_shift_register(gen_opts)
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`endif // _tt_kwr_lfsr__modules_"
+
+            puts "`endif // _tt09_kwr_lfsr__modules_"
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
@@ -826,126 +922,174 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
         ##################
 
-        #def self.generate_tt_logic(gen_opts) : Nil
         def self.generate_logic(gen_opts) : Nil
-            clock_symbol    = gen_opts.clock_symbol
-            clock_polarity  = gen_opts.clock_polarity
-
-            reset_symbol    = gen_opts.reset_symbol
-            reset_polarity  = gen_opts.reset_polarity
-
-            if (clock_symbol == "clk")
-                if (clock_polarity == Polarity::Negative)
-                    puts "Clock signal name aliasing (#{clock_symbol}) with inconsistent polarity: TT framework assumes positive and generation provided negative"
-                    exit -1
-                end
-            end
-
-            if (reset_symbol == "rst_n")
-                if (reset_polarity == Polarity::Positive)
-                    puts "Reset signal name aliasing (#{reset_symbol}) with inconsistent polarity: TT framework assumes negative and generation provided positive"
-                    exit -1
-                end
-            end
-
-            lfsr_length_max     = gen_opts.lfsr_length_max
-
-            if (lfsr_length_max > 64)
-                puts "Logic implementation assumes no more than 6 bits which limits LFSR length to 64b, provided #{lfsr_length_max}b"
-                exit -1
-            end
-
-            # Tiny Tapeout pin values available:
-
-            #     input  wire [7:0] ui_in,    // Dedicated inputs"
-            #     output wire [7:0] uo_out,   // Dedicated outputs"
-            #     input  wire [7:0] uio_in,   // IOs: Input path"
-            #     output wire [7:0] uio_out,  // IOs: Output path"
-            #     output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)"
-            #     input  wire       ena,      // always 1 when the design is powered, so you can ignore it"
-            #     input  wire       clk,      // clock"
-            #     input  wire       rst_n     // reset_n - low to reset"
-
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// @BEGIN Logic\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`ifndef _tt_kwr_lfsr__logic_"
-            puts "`define _tt_kwr_lfsr__logic_"
+
+            puts "`ifndef _tt09_kwr_lfsr__logic_"
+            puts "`define _tt09_kwr_lfsr__logic_"
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
-            puts ""
-
-            puts "    wire    [5:0]     lfsr_length_max;"
-            puts "    wire              lfsr_type;"
-            #puts "    wire              lfsr_hold;"
-            puts ""
-            puts "    wire              lfsr_valid;"
-            puts "    wire    [15:0]    lfsr_value;"
-            puts ""
-            puts "    wire              mask_valid;"
-            puts "    wire              mask_value;"
-
-            puts ""
-            #puts "    always (*)"
-            #puts "    begin"
-            puts "        uio_oe           = 8b1111_1111;"
-            #puts "    end"
-            puts ""
-            #puts "    always (*)"
-            #puts "    begin"
-            # should there be a lsfr_load to latch length and type?
-            puts "        lfsr_length_max  = ui_in[5:0];"       # should we latch this one?
-            puts "        lfsr_type        = ui_in[6];"         # we don't care for the moment, but should we latch this one?
-            puts "        lfsr_hold        = ui_in[7];"
-
-            puts "        #{clock_symbol}  = #{polarity?(clock_polarity, pos: "",    neg: "!")}clk;"
-            puts "        #{reset_symbol}  = #{polarity?(reset_polarity, pos: "not", neg: "")}rst_n;"
-            #puts "    end"
-            puts ""
-            puts ""
-            puts "mask_fibonacci    mask"
+            puts "module tt_um__kwr_lfsr__top"
             puts "("
-            puts "    .mask_length(lsfr_length),"
-            puts "    .mask_valid(mask_valid)"
-            puts "    .mask_value(mask_value),"
-            puts ");"
-            puts ""
-            puts "lfsr_fibonacci    lfsr"
-            puts "("
-            puts "    .clk(#{clock_symbol}),"
-            puts "    .rst_n(#{reset_symbol}),"
-            puts "    .mask_valid(mask_valid),"
-            puts "    .mask_value(mask_value),"
-            puts "    .lfsr_value(lfsr_value)"
-            puts ");"
-            puts ""
-            #puts "    always (*)"
-            #puts "    begin"
-            puts "        uio_out[7]                       = lfsr_valid;"
-            puts "        { uio_out[6:0], uo_out[7:0] }    = lfsr_value[14:0]"
-            #puts "    end"
 
-            puts ""
+            puts "    // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency"
+
+            puts "    input  wire  [7:0]    ui_in,    // Dedicated inputs"
+            puts "    input  wire  [7:0]    uio_in,   // IOs: Input path"
+            puts "    input  wire           ena,      // will go high when the design is enabled"
+            puts "    input  wire           clk,      // clock"
+            puts "    input  wire           rst_n,    // reset_n - low to reset"
+
+            puts "    output reg   [7:0]    uo_out,   // Dedicated outputs"
+            puts "    output reg   [7:0]    uio_out,  // IOs: Output path"
+            puts "    output reg   [7:0]    uio_oe    // IOs: Enable path (active high: 0=input, 1=output)"
+            puts ");"
+
+
+
+
+
+
+
+
+            # clock_symbol    = gen_opts.clock_symbol
+            # clock_polarity  = gen_opts.clock_polarity
+
+            # reset_symbol    = gen_opts.reset_symbol
+            # reset_polarity  = gen_opts.reset_polarity
+
+            # if (clock_symbol == "clk")
+            #     if (clock_polarity == Polarity::Negative)
+            #         puts "Clock signal name aliasing (#{clock_symbol}) with inconsistent polarity: TT framework assumes positive and generation provided negative"
+            #         exit -1
+            #     end
+            # end
+
+            # if (reset_symbol == "rst_n")
+            #     if (reset_polarity == Polarity::Positive)
+            #         puts "Reset signal name aliasing (#{reset_symbol}) with inconsistent polarity: TT framework assumes negative and generation provided positive"
+            #         exit -1
+            #     end
+            # end
+
+            # lfsr_length_max     = gen_opts.lfsr_length_max
+
+            # if (lfsr_length_max > 64)
+            #     puts "Logic implementation assumes no more than 6 bits which limits LFSR length to 64b, provided #{lfsr_length_max}b"
+            #     exit -1
+            # end
+
+            # # Tiny Tapeout pin values available:
+
+            # #     input  wire [7:0] ui_in,    // Dedicated inputs"
+            # #     output wire [7:0] uo_out,   // Dedicated outputs"
+            # #     input  wire [7:0] uio_in,   // IOs: Input path"
+            # #     output wire [7:0] uio_out,  // IOs: Output path"
+            # #     output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)"
+            # #     input  wire       ena,      // always 1 when the design is powered, so you can ignore it"
+            # #     input  wire       clk,      // clock"
+            # #     input  wire       rst_n     // reset_n - low to reset"
+
+            # puts ""
+
+            # puts "    wire    [5:0]     lfsr_length_max;"
+            # puts "    wire              lfsr_type;"
+            # #puts "    wire              lfsr_hold;"
+
+            # puts ""
+
+            # puts "    wire              lfsr_valid;"
+            # puts "    wire    [15:0]    lfsr_value;"
+
+            # puts ""
+
+            # puts "    wire              mask_valid;"
+            # puts "    wire              mask_value;"
+
+            # puts ""
+
+            # #puts "    always (*)"
+            # #puts "    begin"
+            # puts "        uio_oe           = 8b1111_1111;"
+            # #puts "    end // always"
+
+            # puts ""
+
+            # #puts "    always (*)"
+            # #puts "    begin"
+            # # should there be a lsfr_load to latch length and type?
+            # puts "        lfsr_length_max  = ui_in[5:0];"       # should we latch this one?
+            # puts "        lfsr_type        = ui_in[6];"         # we don't care for the moment, but should we latch this one?
+            # puts "        lfsr_hold        = ui_in[7];"
+
+            # puts "        #{clock_symbol}  = #{polarity?(clock_polarity, pos: "",    neg: "!")}clk;"
+            # puts "        #{reset_symbol}  = #{polarity?(reset_polarity, pos: "not", neg: "")}rst_n;"
+            # #puts "    end // always"
+
+            # puts ""
+            # puts ""
+
+            # puts "mask_fibonacci    mask"
+            # puts "("
+            # puts "    .mask_length(lsfr_length),"
+            # puts "    .mask_valid(mask_valid)"
+            # puts "    .mask_value(mask_value),"
+            # puts ");"
+
+            # puts ""
+
+            # puts "lfsr_fibonacci    lfsr"
+            # puts "("
+            # puts "    .clk(#{clock_symbol}),"
+            # puts "    .rst_n(#{reset_symbol}),"
+            # puts "    .mask_valid(mask_valid),"
+            # puts "    .mask_value(mask_value),"
+            # puts "    .lfsr_value(lfsr_value)"
+            # puts ");"
+
+            # puts ""
+
+            # #puts "    always (*)"
+            # #puts "    begin"
+            # puts "        uio_out[7]                       = lfsr_valid;"
+            # puts "        { uio_out[6:0], uo_out[7:0] }    = lfsr_value[14:0]"
+            # #puts "    end // always"
+
+            # puts ""
+
+
+
+
+
+
 
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`endif // _tt_kwr_lfsr__logic_"
+
+            puts "endmodule // tt_um__kwr_lfsr__top"
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// @END Logic\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts "`endif // _tt09_kwr_lfsr__logic_"
+
         end # def generate_logic
 
         #########
 
-        def self.generate_test(gen_opts) : Nil
+        def self.generate_test_lfsr(gen_opts) : Nil
             clock_symbol      = gen_opts.clock_symbol
             clock_polarity    = gen_opts.clock_polarity
 
@@ -961,12 +1105,12 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
             lfsr_value_mask   = 2**lfsr_length - 1
 
             puts "// ////////////////////////////////////////////////////////////////////////"
-            puts "// @BEGIN Test\n"
+            puts "// @BEGIN Test_LFSR\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`ifndef _tt_kwr_lfsr__test_"
-            puts "`define _tt_kwr_lfsr__test_"
+            puts "`ifndef _tt09_kwr_lfsr__test_lfsr_"
+            puts "`define _tt09_kwr_lfsr__test_lfsr_"
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
@@ -975,9 +1119,195 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
             puts ""
 
             puts "// ... test code goes here ...."
+
             puts ""
 
-            puts "module test;"
+            puts "module test_lfsr;"
+
+            puts "    reg                   clk;"
+            puts "    reg                   rst_n;"
+
+            puts "    reg                   lfsr_hold;"
+            puts "    reg          [#{lfsr_length_size - 1}:0]    lfsr_length;"
+            puts "    reg                   lfsr_n_taps;"
+
+            puts "    reg         [#{lfsr_length_max  - 1}:0]    lfsr_value_prev;"
+
+            puts ""
+
+            puts "    wire        [#{lfsr_length_max - 1}:0]    lfsr_value;"
+            puts "    wire                  lfsr_valid;"
+
+            puts ""
+
+            puts "    lfsr_fibonacci    lf"
+            puts "    ("
+            puts "        .clk(clk),"
+            puts "        .rst_n(rst_n),"
+            puts "        .lfsr_hold(lfsr_hold),"
+            puts "        .lfsr_length(lfsr_length),"
+            puts "        .lfsr_n_taps(lfsr_n_taps),"
+            puts "        .lfsr_value_prev(lfsr_value_prev),"
+            puts "        .lfsr_value(lfsr_value),"
+            puts "        .lfsr_valid(lfsr_valid)"
+            puts "    );"
+
+            puts ""
+
+            puts "    integer               cycle;"
+
+            puts ""
+
+            puts "    initial"
+            puts "    begin"
+
+            puts "        cycle             = 0;"
+            puts "        $display(#{DQ}#### cycle = %d#{DQ}, cycle);"
+
+            puts "        clk               = 0;"
+            puts "        rst_n             = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        lfsr_hold         = 0;"
+            puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
+            puts "        lfsr_n_taps       = 0;"
+            puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"
+
+            puts ""
+
+            puts "        #50;"
+            puts "        rst_n             = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        #50;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #50;"
+            puts "        rst_n             = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        #50;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts ""
+
+            puts "    end"
+
+            puts ""
+
+            puts "    always"
+            puts "    begin"
+
+            puts "        cycle             = cycle + 1;"
+
+            puts ""
+
+            puts "        if (cycle > 100)    $finish;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 1;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            puts "        lfsr_value_prev   = lfsr_value;"
+
+            puts ""
+
+            puts "        #100;"
+            puts "        clk               = 0;"
+            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            puts "    end // always"
+
+            puts "endmodule // test_lfsr"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "`endif // _tt09_kwr_lfsr__test_lfsr_"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @END Test_LFSR\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+        end # def self.generate_test_lfsr    end # class Verilog_Generator
+
+        #########
+
+        def self.generate_test_logic(gen_opts)
+            puts "#{self.name}.generate_test(gen_opts) is not implemented"
+            exit -1
+
+            clock_symbol      = gen_opts.clock_symbol
+            clock_polarity    = gen_opts.clock_polarity
+
+            reset_symbol      = gen_opts.reset_symbol
+            reset_polarity    = gen_opts.reset_polarity
+
+            lfsr_length_max   = gen_opts.lfsr_length_max
+            lfsr_length_size  = gen_opts.lfsr_length_size
+            lfsr_init_value   = gen_opts.lfsr_init_value
+
+            lfsr_length       = 7
+            lfsr_value_prev   = 0x69        # “random” 7b value…
+            lfsr_value_mask   = 2**lfsr_length - 1
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @BEGIN Test_Logic\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "`ifndef _tt09_kwr_lfsr__test_lfsr_"
+            puts "`define _tt09_kwr_lfsr__test_lfsr_"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            puts "// ... test code goes here ...."
+
+            puts ""
+
+            puts "module test_lfsr;"
 
             puts "    reg                   clk;"
             puts "    reg                   rst_n;"
@@ -1105,26 +1435,35 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts "    end"
 
-            puts "endmodule"
+            puts "endmodule // test_logic"
 
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
-            puts "`endif // _tt_kwr_lfsr__test_"
+
+            puts "`endif // _tt09_kwr_lfsr__test_lfsr_"
+
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
-            puts "// @END Test\n"
+            puts "// @END Test_Logic\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
-        end # def self.generate_test    end # class Verilog_Generator
+        end # def self.generate_test_logic
     end # class Verilog_Generator
 
     ####################################
 
     class SystemVerilog_Generator < Verilog_Generator
         HDL_Generator.add_subclass(Language::SystemVerilog, self)
+
+        #########
+
+        def self.generate_header(gen_opts)
+            puts "#{self.name}.generate_header(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_modules
 
         #########
 
@@ -1142,16 +1481,30 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
         #########
 
-        def self.generate_test(gen_opts)
+        def self.generate_test_lfsr(gen_opts)
             puts "#{self.name}.generate_test(gen_opts) is not implemented"
             exit -1
-        end # def self.generate_test
+        end # def self.generate_test_lfsr
+
+        #########
+
+        def self.generate_test_logic(gen_opts)
+            puts "#{self.name}.generate_test(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_test_logic
     end # class SystemVerilog_Generator
 
     ####################################
 
     class VHDL_Generator          < HDL_Generator
         HDL_Generator.add_subclass(Language::VHDL, self)
+
+        #########
+
+        def self.generate_header(gen_opts)
+            puts "#{self.name}.generate_header(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_modules
 
         #########
 
@@ -1169,10 +1522,17 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
         #########
 
-        def self.generate_test(gen_opts)
+        def self.generate_test_lfsr(gen_opts)
             puts "#{self.name}.generate_test(gen_opts) is not implemented"
             exit -1
-        end # def self.generate_test
+        end # def self.generate_test_lfsr
+
+        #########
+
+        def self.generate_test_logic(gen_opts)
+            puts "#{self.name}.generate_test(gen_opts) is not implemented"
+            exit -1
+        end # def self.generate_test_logic
     end # class HDL_Generator
 
     ########################################################################

@@ -1,16 +1,42 @@
 // ////////////////////////////////////////////////////////////////////////
+// @BEGIN Header
+// ////////////////////////////////////////////////////////////////////////
+
+`ifndef _tt09_kwr_lfsr__header_
+`define _tt09_kwr_lfsr__header_
+
+// ////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
+
+// ////////////////////////////////////
+// Copyright (c) 2024 Kevin W. Rudd
+// SPDX-License-Identifier: Apache-2.0
+// ////////////////////////////////////
+
+`default_nettype    none
+
+// ////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
+
+`endif // _tt09_kwr_lfsr__header_
+
+// ////////////////////////////////////////////////////////////////////////
+// @END Header
+// ////////////////////////////////////////////////////////////////////////
+
+// ////////////////////////////////////////////////////////////////////////
 // @BEGIN Modules
 // ////////////////////////////////////////////////////////////////////////
 
-`ifndef _tt_kwr_lfsr__modules_
-`define _tt_kwr_lfsr__modules_
+`ifndef _tt09_kwr_lfsr__modules_
+`define _tt09_kwr_lfsr__modules_
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 
 module generate_mask_fibonacci_2_taps
 (
-    input       [5:0]    lfsr_length,
+    input  wire [5:0]    lfsr_length,
 
     output reg  [63:0]   mask_value,
     output reg           mask_valid
@@ -55,14 +81,14 @@ module generate_mask_fibonacci_2_taps
                6'd33 : begin mask_value  <= 64'b0000000000000000000000000000000100000000000010000000000000000000; mask_valid  = 1; end
              default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
         endcase
-    end
-endmodule
+    end // always
+endmodule // generate_mask_fibonacci_
 
 // ////////////////////////////////////////////////////////////////////////
 
 module generate_mask_fibonacci_4_taps
 (
-    input       [5:0]    lfsr_length,
+    input  wire [5:0]    lfsr_length,
 
     output reg  [63:0]   mask_value,
     output reg           mask_valid
@@ -107,20 +133,20 @@ module generate_mask_fibonacci_4_taps
                6'd33 : begin mask_value  <= 64'b0000000000000000000000000000000110010100000000000000000000000000; mask_valid  = 1; end
              default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
         endcase
-    end
-endmodule
+    end // always
+endmodule // generate_mask_fibonacci_
 
 // ////////////////////////////////////////////////////////////////////////
 
 module lfsr_fibonacci
 (
-    input                 clk,
-    input                 rst_n,
-    input                 lfsr_hold,
-    input        [5:0]    lfsr_length,
-    input                 lfsr_n_taps,
-    input       [63:0]    lfsr_value_prev,
-    input                 lfsr_valid_prev,
+    input  wire           clk,
+    input  wire           rst_n,
+    input  wire           lfsr_hold,
+    input  wire  [5:0]    lfsr_length,
+    input  wire           lfsr_n_taps,
+    input  wire [63:0]    lfsr_value_prev,
+    input  wire           lfsr_valid_prev,
 
     output reg  [63:0]    lfsr_value,
     output reg            lfsr_valid
@@ -135,6 +161,7 @@ module lfsr_fibonacci
         .mask_value(mask_value_2_taps),
         .mask_valid(mask_valid_2_taps)
     );
+
     wire        [63:0]    mask_value_4_taps;
     wire                  mask_valid_4_taps;
 
@@ -161,7 +188,7 @@ module lfsr_fibonacci
             mask_valid  <= mask_valid_2_taps;
           end
         // endif
-    end
+    end // always
 
     always @(posedge clk or negedge rst_n)
     begin
@@ -192,31 +219,61 @@ $display(".... .... cycle .... mask_value = 0b%07b", mask_value);
           end
         // endif
 
-    end
-endmodule
+    end // always
+endmodule // lfsr_fibonacci
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 
-`endif // _tt_kwr_lfsr__modules_
+`endif // _tt09_kwr_lfsr__modules_
 
 // ////////////////////////////////////////////////////////////////////////
 // @END Modules
 // ////////////////////////////////////////////////////////////////////////
 
 // ////////////////////////////////////////////////////////////////////////
-// @BEGIN Test
+// @BEGIN Logic
 // ////////////////////////////////////////////////////////////////////////
 
-`ifndef _tt_kwr_lfsr__test_
-`define _tt_kwr_lfsr__test_
+`ifndef _tt09_kwr_lfsr__logic_
+`define _tt09_kwr_lfsr__logic_
+
+// ////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
+module tt_um__kwr_lfsr__top
+(
+    // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency
+    input  wire  [7:0]    ui_in,    // Dedicated inputs
+    input  wire  [7:0]    uio_in,   // IOs: Input path
+    input  wire           ena,      // will go high when the design is enabled
+    input  wire           clk,      // clock
+    input  wire           rst_n,    // reset_n - low to reset
+    output reg   [7:0]    uo_out,   // Dedicated outputs
+    output reg   [7:0]    uio_out,  // IOs: Output path
+    output reg   [7:0]    uio_oe    // IOs: Enable path (active high: 0=input, 1=output)
+);
+// ////////////////////////////////////////////////////////////////////////
+
+endmodule // tt_um__kwr_lfsr__top
+
+// ////////////////////////////////////////////////////////////////////////
+// @END Logic
+// ////////////////////////////////////////////////////////////////////////
+`endif // _tt09_kwr_lfsr__logic_
+
+// ////////////////////////////////////////////////////////////////////////
+// @BEGIN Test_LFSR
+// ////////////////////////////////////////////////////////////////////////
+
+`ifndef _tt09_kwr_lfsr__test_lfsr_
+`define _tt09_kwr_lfsr__test_lfsr_
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 
 // ... test code goes here ....
 
-module test;
+module test_lfsr;
     reg                   clk;
     reg                   rst_n;
     reg                   lfsr_hold;
@@ -303,13 +360,13 @@ module test;
         #100;
         clk               = 0;
         $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
-    end
-endmodule
+    end // always
+endmodule // test_lfsr
 
 // ////////////////////////////////////////////////////////////////////////
 
-`endif // _tt_kwr_lfsr__test_
+`endif // _tt09_kwr_lfsr__test_lfsr_
 
 // ////////////////////////////////////////////////////////////////////////
-// @END Test
+// @END Test_LFSR
 // ////////////////////////////////////////////////////////////////////////

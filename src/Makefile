@@ -13,11 +13,14 @@ LFSR_GEN_OPTS	= 	-Hv \
 			-R -rst_n \
 			-L lfsr \
 			-T fib \
+			--generate header \
 			--generate modules \
-			--generate test
+			--generate logic \
+			--generate test_lfsr
 
 #			--generate logic \
-@			--generate test
+@			--generate test_lfsr \
+@			--generate test_logic
 
 lfsr.v:		generate_lfsr
 	./$< $(LFSR_GEN_OPTS) > $@

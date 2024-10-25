@@ -433,6 +433,7 @@
 
     class HDL_Generator
         @@hdl_classes  = Hash(Language, self.class).new
+        @@generated    = false
 
         ##################
 
@@ -464,6 +465,8 @@
                 puts "No generator class available for language #{lang}"
                 exit -1
             end # if
+
+            puts ""         if (@@generated)
 
             what  = gen_opts.what
 
@@ -566,6 +569,8 @@
                 puts "Don't know how to generate a #{what}"
                 exit -1
             end # case
+
+            @@generated  = true
 
         end # def self.generate
     end # class HDL_Generator
@@ -727,6 +732,9 @@
                 puts "        endcase"
 # puts "$display(#{DQ}$$$$ n_taps=#{n_taps} lfsr_length=%d, mask_value=0b%064b mask_valid=0b%b#{DQ}, lfsr_length, mask_value, mask_valid);"
                 puts "    end // always"
+
+                puts ""
+
                 puts "endmodule // generate_mask_fibonacci_"
 
               # when Type::Galois
@@ -827,7 +835,7 @@
 
             puts "        if      (lfsr_hold)"
             puts "          begin"
-puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
+# puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
             puts "            lfsr_value  <= lfsr_value_prev;"
             puts "            lfsr_valid  <= lfsr_valid_prev;"
             puts "          end"
@@ -836,7 +844,7 @@ puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
                                 # should lfsr_invalid_value but specified somewhere?
                                 # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
             puts "          begin"
-puts "$display(#{DQ}.... .... lfsr mask invalid#{DQ});"
+# puts "$display(#{DQ}.... .... lfsr mask invalid#{DQ});"
             puts "            lfsr_value  <= #{lfsr_length_max}'d0;"
             puts "            lfsr_valid  <= 0;"
             puts "          end"
@@ -845,14 +853,14 @@ puts "$display(#{DQ}.... .... lfsr mask invalid#{DQ});"
                                 # should lfsr_init_value be specified in the table (at the 0-length position?) as tap-dependent?
                                 # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
             puts "          begin"
-puts "$display(#{DQ}.... .... reset#{DQ});"
+# puts "$display(#{DQ}.... .... reset#{DQ});"
             puts "            lfsr_value  <= #{lfsr_length_max}'d#{lfsr_init_value};"
             puts "            lfsr_valid  <= 1;"
             puts "          end"
 
             puts "        else"
             puts "          begin"
-puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
+# puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts "            // shift the previous value and add in the computed (reduced) feedback value"
             puts "            lfsr_value  <= { lfsr_value_prev[#{lfsr_length_max - 2}:0], ^(lfsr_value_prev & mask_value) };"
@@ -863,6 +871,8 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
             puts ""
 
             puts "    end // always"
+
+            puts ""
 
             puts "endmodule // lfsr_fibonacci"
         end # def self.generate_module_shift_register
@@ -942,23 +952,61 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts "    // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency"
 
-            puts "    input  wire  [7:0]    ui_in,    // Dedicated inputs"
-            puts "    input  wire  [7:0]    uio_in,   // IOs: Input path"
-            puts "    input  wire           ena,      // will go high when the design is enabled"
-            puts "    input  wire           clk,      // clock"
-            puts "    input  wire           rst_n,    // reset_n - low to reset"
+            puts "    input  wire  [7:0]    ui_in,      // Dedicated inputs"
+            puts "    input  wire  [7:0]    uio_in,     // IOs: Input path"
+            puts "    input  wire           ena,        // will go high when the design is enabled"
+            puts "    input  wire           clk,        // clock"
+            puts "    input  wire           rst_n,      // reset_n - low to reset"
 
-            puts "    output reg   [7:0]    uo_out,   // Dedicated outputs"
-            puts "    output reg   [7:0]    uio_out,  // IOs: Output path"
-            puts "    output reg   [7:0]    uio_oe    // IOs: Enable path (active high: 0=input, 1=output)"
+            puts "    output reg   [7:0]    uo_out,     // Dedicated outputs"
+            puts "    output reg   [7:0]    uio_out,    // IOs: Output path"
+            puts "    output reg   [7:0]    uio_oe      // IOs: Enable path (active high: 0=input, 1=output)"
             puts ");"
 
+            puts ""
 
+            puts "// ////////////////////////////////////////////////////////////////////////"
 
+# ####################################
+# below here goes the rest of the logic
+# ####################################
 
+            puts ""
 
+            # puts "    always @(#{polarity?(clock_polarity, pos: "posedge ", neg: "negedge ")}#{clock_symbol})"
+            # puts "    begin"
 
+            # puts ""
 
+            # puts "        if (polarity?(reset_polarity, pos: "posedge ", neg: "negedge ")}#{reset_symbol})
+
+            # puts ""
+
+            # puts "    end // always"
+
+# ####################################
+# above here goes the rest of the logic
+# ####################################
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+
+            puts ""
+
+            # puts "    // All output pins must be assigned. If not used, assign to 0."
+            # puts "    uo_out     = 0;"
+            # puts "    uio_out    = 0;"
+            # puts "    uio_oe     = 0;"
+
+            # puts ""
+
+            # puts "    // All unused inputs must be used to prevent warnings"
+            # puts "    wire                  _unused;"
+
+            # puts ""
+
+            # puts "    _unused    = &{ena, clk, rst_n, 1'b0};"
+
+            # puts ""
 
             # clock_symbol    = gen_opts.clock_symbol
             # clock_polarity  = gen_opts.clock_polarity
@@ -989,14 +1037,14 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             # # Tiny Tapeout pin values available:
 
-            # #     input  wire [7:0] ui_in,    // Dedicated inputs"
-            # #     output wire [7:0] uo_out,   // Dedicated outputs"
-            # #     input  wire [7:0] uio_in,   // IOs: Input path"
-            # #     output wire [7:0] uio_out,  // IOs: Output path"
-            # #     output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)"
-            # #     input  wire       ena,      // always 1 when the design is powered, so you can ignore it"
-            # #     input  wire       clk,      // clock"
-            # #     input  wire       rst_n     // reset_n - low to reset"
+            # #     input  wire [7:0] ui_in,            // Dedicated inputs"
+            # #     output wire [7:0] uo_out,           // Dedicated outputs"
+            # #     input  wire [7:0] uio_in,           // IOs: Input path"
+            # #     output wire [7:0] uio_out,          // IOs: Output path"
+            # #     output wire [7:0] uio_oe,           // IOs: Enable path (active high: 0=input, 1=output)"
+            # #     input  wire       ena,              // always 1 when the design is powered, so you can ignore it"
+            # #     input  wire       clk,              // clock"
+            # #     input  wire       rst_n             // reset_n - low to reset"
 
             # puts ""
 
@@ -1070,9 +1118,6 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
 
 
-
-            puts "// ////////////////////////////////////////////////////////////////////////"
-
             puts ""
 
             puts "endmodule // tt_um__kwr_lfsr__top"
@@ -1080,10 +1125,17 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
-            puts "// @END Logic\n"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
+            puts ""
+
             puts "`endif // _tt09_kwr_lfsr__logic_"
+
+            puts ""
+
+            puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// @END Logic\n"
+            puts "// ////////////////////////////////////////////////////////////////////////"
 
         end # def generate_logic
 
@@ -1250,10 +1302,13 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts "    end // always"
 
+            puts ""
+
             puts "endmodule // test_lfsr"
 
             puts ""
 
+            puts "// ////////////////////////////////////////////////////////////////////////"
             puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
@@ -1293,8 +1348,8 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts ""
 
-            puts "`ifndef _tt09_kwr_lfsr__test_lfsr_"
-            puts "`define _tt09_kwr_lfsr__test_lfsr_"
+            puts "`ifndef _tt09_kwr_lfsr__test_logic_"
+            puts "`define _tt09_kwr_lfsr__test_logic_"
 
             puts ""
 
@@ -1309,141 +1364,154 @@ puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
 
             puts "module test_lfsr;"
 
-            puts "    reg                   clk;"
-            puts "    reg                   rst_n;"
+            puts "    reg   [7:0]           ui_in,      // Dedicated inputs"
+            puts "    reg   [7:0]    uio_in,     // IOs: Input path"
+            puts "    reg            ena,        // will go high when the design is enabled"
+            puts "    reg            clk,        // clock"
+            puts "    reg            rst_n,      // reset_n - low to reset"
 
-            puts "    reg                   lfsr_hold;"
-            puts "    reg          [#{lfsr_length_size - 1}:0]    lfsr_length;"
-            puts "    reg                   lfsr_n_taps;"
+            puts "    wire  [7:0]    uo_out,     // Dedicated outputs"
+            puts "    wire  [7:0]    uio_out,    // IOs: Output path"
+            puts "    wire  [7:0]    uio_oe      // IOs: Enable path (active high: 0=input, 1=output)"
 
-            puts "    reg         [#{lfsr_length_max  - 1}:0]    lfsr_value_prev;"
+            # puts "    reg                   clk;"
+            # puts "    reg                   rst_n;"
 
-            puts ""
+            # puts "    reg                   lfsr_hold;"
+            # puts "    reg          [#{lfsr_length_size - 1}:0]    lfsr_length;"
+            # puts "    reg                   lfsr_n_taps;"
 
-            puts "    wire        [#{lfsr_length_max - 1}:0]    lfsr_value;"
-            puts "    wire                  lfsr_valid;"
+            # puts "    reg         [#{lfsr_length_max  - 1}:0]    lfsr_value_prev;"
 
-            puts ""
+            # puts ""
 
-            puts "    lfsr_fibonacci    lf"
-            puts "    ("
-            puts "        .clk(clk),"
-            puts "        .rst_n(rst_n),"
-            puts "        .lfsr_hold(lfsr_hold),"
-            puts "        .lfsr_length(lfsr_length),"
-            puts "        .lfsr_n_taps(lfsr_n_taps),"
-            puts "        .lfsr_value_prev(lfsr_value_prev),"
-            puts "        .lfsr_value(lfsr_value),"
-            puts "        .lfsr_valid(lfsr_valid)"
-            puts "    );"
+            # puts "    wire        [#{lfsr_length_max - 1}:0]    lfsr_value;"
+            # puts "    wire                  lfsr_valid;"
 
-            puts ""
+            # puts ""
 
-            puts "    integer               cycle;"
+            # puts "    lfsr_fibonacci    lf"
+            # puts "    ("
+            # puts "        .clk(clk),"
+            # puts "        .rst_n(rst_n),"
+            # puts "        .lfsr_hold(lfsr_hold),"
+            # puts "        .lfsr_length(lfsr_length),"
+            # puts "        .lfsr_n_taps(lfsr_n_taps),"
+            # puts "        .lfsr_value_prev(lfsr_value_prev),"
+            # puts "        .lfsr_value(lfsr_value),"
+            # puts "        .lfsr_valid(lfsr_valid)"
+            # puts "    );"
 
-            puts ""
+            # puts ""
 
-            puts "    initial"
-            puts "    begin"
+            # puts "    integer               cycle;"
 
-            puts "        cycle             = 0;"
-            puts "        $display(#{DQ}#### cycle = %d#{DQ}, cycle);"
+            # puts ""
 
-            puts "        clk               = 0;"
-            puts "        rst_n             = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "    initial"
+            # puts "    begin"
 
-            puts ""
+            # puts "        cycle             = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d#{DQ}, cycle);"
 
-            puts "        lfsr_hold         = 0;"
-            puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
-            puts "        lfsr_n_taps       = 0;"
-            puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"
+            # puts "        clk               = 0;"
+            # puts "        rst_n             = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
 
-            puts ""
+            # puts ""
 
-            puts "        #50;"
-            puts "        rst_n             = 0;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        #50;"
-            puts "        clk               = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        lfsr_value_prev   = lfsr_value;"
+            # puts "        lfsr_hold         = 0;"
+            # puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
+            # puts "        lfsr_n_taps       = 0;"
+            # puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 0;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #50;"
+            # puts "        rst_n             = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #50;"
+            # puts "        clk               = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        lfsr_value_prev   = lfsr_value;"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        lfsr_value_prev   = lfsr_value;"
+            # puts "        #100;"
+            # puts "        clk               = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 0;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #100;"
+            # puts "        clk               = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        lfsr_value_prev   = lfsr_value;"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        lfsr_value_prev   = lfsr_value;"
+            # puts "        #100;"
+            # puts "        clk               = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
 
-            puts ""
+            # puts ""
 
-            puts "        #50;"
-            puts "        rst_n             = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        #50;"
-            puts "        clk               = 0;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #100;"
+            # puts "        clk               = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        lfsr_value_prev   = lfsr_value;"
 
-            puts ""
+            # puts ""
 
-            puts "    end"
+            # puts "        #50;"
+            # puts "        rst_n             = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #50;"
+            # puts "        clk               = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
 
-            puts ""
+            # puts ""
 
-            puts "    always"
-            puts "    begin"
+            # puts "    end"
 
-            puts "        cycle             = cycle + 1;"
+            # puts ""
 
-            puts ""
+            # puts "    always"
+            # puts "    begin"
 
-            puts "        if (cycle > 100)    $finish;"
+            # puts "        cycle             = cycle + 1;"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 1;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
-            puts "        lfsr_value_prev   = lfsr_value;"
+            # puts "        if (cycle > 100)    $finish;"
 
-            puts ""
+            # puts ""
 
-            puts "        #100;"
-            puts "        clk               = 0;"
-            puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        #100;"
+            # puts "        clk               = 1;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+            # puts "        lfsr_value_prev   = lfsr_value;"
 
-            puts "    end"
+            # puts ""
+
+            # puts "        #100;"
+            # puts "        clk               = 0;"
+            # puts "        $display(#{DQ}#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%0#{lfsr_length}b, lfsr_value = 0b%0#{lfsr_length}b#{DQ}, cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & #{lfsr_value_mask}, lfsr_value & #{lfsr_value_mask});"
+
+            # puts "    end"
+
+            # puts ""
 
             puts "endmodule // test_logic"
 
             puts ""
 
             puts "// ////////////////////////////////////////////////////////////////////////"
+            puts "// ////////////////////////////////////////////////////////////////////////"
 
             puts ""
 
-            puts "`endif // _tt09_kwr_lfsr__test_lfsr_"
+            puts "`endif // _tt09_kwr_lfsr__test_logic_"
 
             puts ""
 

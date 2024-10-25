@@ -24,6 +24,7 @@
 // @END Header
 // ////////////////////////////////////////////////////////////////////////
 
+
 // ////////////////////////////////////////////////////////////////////////
 // @BEGIN Modules
 // ////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,7 @@ module generate_mask_fibonacci_2_taps
              default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
         endcase
     end // always
+
 endmodule // generate_mask_fibonacci_
 
 // ////////////////////////////////////////////////////////////////////////
@@ -134,6 +136,7 @@ module generate_mask_fibonacci_4_taps
              default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
         endcase
     end // always
+
 endmodule // generate_mask_fibonacci_
 
 // ////////////////////////////////////////////////////////////////////////
@@ -194,25 +197,21 @@ module lfsr_fibonacci
     begin
         if      (lfsr_hold)
           begin
-$display(".... .... lfsr hold");
             lfsr_value  <= lfsr_value_prev;
             lfsr_valid  <= lfsr_valid_prev;
           end
         else if (~mask_valid)
           begin
-$display(".... .... lfsr mask invalid");
             lfsr_value  <= 64'd0;
             lfsr_valid  <= 0;
           end
         else if (~rst_n)
           begin
-$display(".... .... reset");
             lfsr_value  <= 64'd1;
             lfsr_valid  <= 1;
           end
         else
           begin
-$display(".... .... cycle .... mask_value = 0b%07b", mask_value);
             // shift the previous value and add in the computed (reduced) feedback value
             lfsr_value  <= { lfsr_value_prev[62:0], ^(lfsr_value_prev & mask_value) };
             lfsr_valid  <= 1;
@@ -220,6 +219,7 @@ $display(".... .... cycle .... mask_value = 0b%07b", mask_value);
         // endif
 
     end // always
+
 endmodule // lfsr_fibonacci
 
 // ////////////////////////////////////////////////////////////////////////
@@ -230,6 +230,7 @@ endmodule // lfsr_fibonacci
 // ////////////////////////////////////////////////////////////////////////
 // @END Modules
 // ////////////////////////////////////////////////////////////////////////
+
 
 // ////////////////////////////////////////////////////////////////////////
 // @BEGIN Logic
@@ -243,23 +244,32 @@ endmodule // lfsr_fibonacci
 module tt_um__kwr_lfsr__top
 (
     // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency
-    input  wire  [7:0]    ui_in,    // Dedicated inputs
-    input  wire  [7:0]    uio_in,   // IOs: Input path
-    input  wire           ena,      // will go high when the design is enabled
-    input  wire           clk,      // clock
-    input  wire           rst_n,    // reset_n - low to reset
-    output reg   [7:0]    uo_out,   // Dedicated outputs
-    output reg   [7:0]    uio_out,  // IOs: Output path
-    output reg   [7:0]    uio_oe    // IOs: Enable path (active high: 0=input, 1=output)
+    input  wire  [7:0]    ui_in,      // Dedicated inputs
+    input  wire  [7:0]    uio_in,     // IOs: Input path
+    input  wire           ena,        // will go high when the design is enabled
+    input  wire           clk,        // clock
+    input  wire           rst_n,      // reset_n - low to reset
+    output reg   [7:0]    uo_out,     // Dedicated outputs
+    output reg   [7:0]    uio_out,    // IOs: Output path
+    output reg   [7:0]    uio_oe      // IOs: Enable path (active high: 0=input, 1=output)
 );
+
 // ////////////////////////////////////////////////////////////////////////
+
+// ////////////////////////////////////////////////////////////////////////
+
 
 endmodule // tt_um__kwr_lfsr__top
 
 // ////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
+
+`endif // _tt09_kwr_lfsr__logic_
+
+// ////////////////////////////////////////////////////////////////////////
 // @END Logic
 // ////////////////////////////////////////////////////////////////////////
-`endif // _tt09_kwr_lfsr__logic_
+
 
 // ////////////////////////////////////////////////////////////////////////
 // @BEGIN Test_LFSR
@@ -361,8 +371,10 @@ module test_lfsr;
         clk               = 0;
         $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
     end // always
+
 endmodule // test_lfsr
 
+// ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
 
 `endif // _tt09_kwr_lfsr__test_lfsr_

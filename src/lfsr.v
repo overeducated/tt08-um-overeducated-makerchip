@@ -148,8 +148,6 @@ module lfsr_fibonacci
     input  wire           lfsr_hold,
     input  wire  [5:0]    lfsr_length,
     input  wire           lfsr_n_taps,
-    input  wire [63:0]    lfsr_value_prev,
-    input  wire           lfsr_valid_prev,
 
     output reg  [63:0]    lfsr_value,
     output reg            lfsr_valid
@@ -177,6 +175,9 @@ module lfsr_fibonacci
 
     reg         [63:0]    mask_value;
     reg                   mask_valid;
+
+    reg         [63:0]    lfsr_value_prev;
+    reg                   lfsr_valid_prev;
 
     always @(*)
     begin
@@ -207,14 +208,18 @@ module lfsr_fibonacci
           end
         else if (~rst_n)
           begin
-            lfsr_value  <= 64'd1;
-            lfsr_valid  <= 1;
+            lfsr_value_prev  <= 64'd1;
+            lfsr_valid_prev  <= 1;
+            lfsr_value       <= 64'd1;
+            lfsr_valid       <= 1;
           end
         else
           begin
             // shift the previous value and add in the computed (reduced) feedback value
-            lfsr_value  <= { lfsr_value_prev[62:0], ^(lfsr_value_prev & mask_value) };
-            lfsr_valid  <= 1;
+            lfsr_value_prev  <= lfsr_value;
+            lfsr_valid_prev  <= lfsr_valid;
+            lfsr_value       <= { lfsr_value_prev[62:0], ^(lfsr_value_prev & mask_value) };
+            lfsr_valid       <= 1;
           end
         // endif
 
@@ -241,23 +246,56 @@ endmodule // lfsr_fibonacci
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
-module tt_um__kwr_lfsr__top
+
+module tt_um__kwr_lfsr__top // top-level (and business) logic
 (
     // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency
-    input  wire  [7:0]    ui_in,      // Dedicated inputs
-    input  wire  [7:0]    uio_in,     // IOs: Input path
-    input  wire           ena,        // will go high when the design is enabled
     input  wire           clk,        // clock
     input  wire           rst_n,      // reset_n - low to reset
+    input  wire           ena,        // will go high when the design is enabled
+    input  wire  [7:0]    ui_in,      // Dedicated inputs
+    input  wire  [7:0]    uio_in,     // IOs: Input path
     output reg   [7:0]    uo_out,     // Dedicated outputs
     output reg   [7:0]    uio_out,    // IOs: Output path
     output reg   [7:0]    uio_oe      // IOs: Enable path (active high: 0=input, 1=output)
 );
 
-// ////////////////////////////////////////////////////////////////////////
+    // All unused inputs must be used to prevent warnings
+    reg                   _unused;
 
 // ////////////////////////////////////////////////////////////////////////
 
+    reg                   lfsr_hold;
+    reg         [5:0]    lfsr_length;
+    reg                   lfsr_n_taps;
+    wire        [63:0]    lfsr_value;
+    wire                  lfsr_valid;
+    lfsr_fibonacci    lfsr
+    (
+        .clk(clk),
+        .rst_n(rst_n),
+        .lfsr_hold(lfsr_hold),
+        .lfsr_length(lfsr_length),
+        .lfsr_n_taps(lfsr_n_taps),
+        .lfsr_value(lfsr_value),
+        .lfsr_valid(lfsr_valid)
+    );
+
+    always @(posedge clk, negedge rst_n)
+    begin
+
+
+    end // always
+// ////////////////////////////////////////////////////////////////////////
+    always @(*)
+    begin
+        // All output pins must be assigned. If not used, assign to 0.
+        uo_out     = 0;
+        uio_out    = 0;
+        uio_oe     = 0;
+
+        _unused    = &{ena, clk, rst_n, 1'b0};
+    end
 
 endmodule // tt_um__kwr_lfsr__top
 
@@ -289,19 +327,17 @@ module test_lfsr;
     reg                   lfsr_hold;
     reg          [5:0]    lfsr_length;
     reg                   lfsr_n_taps;
-    reg         [63:0]    lfsr_value_prev;
 
     wire        [63:0]    lfsr_value;
     wire                  lfsr_valid;
 
-    lfsr_fibonacci    lf
+    lfsr_fibonacci    lfsr
     (
         .clk(clk),
         .rst_n(rst_n),
         .lfsr_hold(lfsr_hold),
         .lfsr_length(lfsr_length),
         .lfsr_n_taps(lfsr_n_taps),
-        .lfsr_value_prev(lfsr_value_prev),
         .lfsr_value(lfsr_value),
         .lfsr_valid(lfsr_valid)
     );
@@ -314,45 +350,41 @@ module test_lfsr;
         $display("#### cycle = %d", cycle);
         clk               = 0;
         rst_n             = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         lfsr_hold         = 0;
         lfsr_length       = 6'd7;
         lfsr_n_taps       = 0;
-        lfsr_value_prev   = 64'd105;
 
         #50;
         rst_n             = 0;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
         #50;
         clk               = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
-        lfsr_value_prev   = lfsr_value;
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #100;
         clk               = 0;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #100;
         clk               = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
-        lfsr_value_prev   = lfsr_value;
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #100;
         clk               = 0;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #100;
         clk               = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
-        lfsr_value_prev   = lfsr_value;
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #50;
         rst_n             = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
         #50;
         clk               = 0;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
     end
 
@@ -364,12 +396,11 @@ module test_lfsr;
 
         #100;
         clk               = 1;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
-        lfsr_value_prev   = lfsr_value;
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
         #100;
         clk               = 0;
-        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value_prev = 0b%07b, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value_prev & 127, lfsr_value & 127);
+        $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
     end // always
 
 endmodule // test_lfsr

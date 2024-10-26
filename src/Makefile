@@ -17,10 +17,13 @@ LFSR_GEN_OPTS	= 	-Hv \
 			--generate modules \
 			--generate logic \
 			--generate test_lfsr
+#			--generate test_logic
 
+# ##################
 #			--generate logic \
-@			--generate test_lfsr \
-@			--generate test_logic
+#			--generate test_lfsr \
+#			--generate test_logic \
+# ##################
 
 lfsr.v:		generate_lfsr
 	./$< $(LFSR_GEN_OPTS) > $@

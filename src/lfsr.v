@@ -145,7 +145,6 @@ module lfsr_fibonacci
 (
     input  wire           clk,
     input  wire           rst_n,
-    input  wire           lfsr_hold,
     input  wire  [5:0]    lfsr_length,
     input  wire           lfsr_n_taps,
 
@@ -176,8 +175,6 @@ module lfsr_fibonacci
     reg         [63:0]    mask_value;
     reg                   mask_valid;
 
-    reg         [63:0]    lfsr_value_prev;
-    reg                   lfsr_valid_prev;
 
     always @(*)
     begin
@@ -196,29 +193,22 @@ module lfsr_fibonacci
 
     always @(posedge clk or negedge rst_n)
     begin
-        if      (lfsr_hold)
+        if      (~rst_n)
           begin
-            lfsr_value  <= lfsr_value_prev;
-            lfsr_valid  <= lfsr_valid_prev;
-          end
-        else if (~mask_valid)
-          begin
-            lfsr_value  <= 64'd0;
-            lfsr_valid  <= 0;
-          end
-        else if (~rst_n)
-          begin
-            lfsr_value_prev  <= 64'd1;
-            lfsr_valid_prev  <= 1;
+            // initialize current value/valid
             lfsr_value       <= 64'd1;
             lfsr_valid       <= 1;
           end
+        else if (~mask_valid)
+          begin
+            // force current value/valid to invalid
+            lfsr_value  <= 64'd0;
+            lfsr_valid  <= 0;
+          end
         else
           begin
-            // shift the previous value and add in the computed (reduced) feedback value
-            lfsr_value_prev  <= lfsr_value;
-            lfsr_valid_prev  <= lfsr_valid;
-            lfsr_value       <= { lfsr_value_prev[62:0], ^(lfsr_value_prev & mask_value) };
+            // shift the previous value and add in the computed (reduced) feedback value, set valid correctly (already verified mask is valid)
+            lfsr_value       <= { lfsr_value[62:0], ^(lfsr_value & mask_value) };
             lfsr_valid       <= 1;
           end
         // endif
@@ -265,8 +255,7 @@ module tt_um__kwr_lfsr__top // top-level (and business) logic
 
 // ////////////////////////////////////////////////////////////////////////
 
-    reg                   lfsr_hold;
-    reg         [5:0]    lfsr_length;
+    reg         [5:0]     lfsr_length;
     reg                   lfsr_n_taps;
     wire        [63:0]    lfsr_value;
     wire                  lfsr_valid;
@@ -274,13 +263,17 @@ module tt_um__kwr_lfsr__top // top-level (and business) logic
     (
         .clk(clk),
         .rst_n(rst_n),
-        .lfsr_hold(lfsr_hold),
         .lfsr_length(lfsr_length),
         .lfsr_n_taps(lfsr_n_taps),
         .lfsr_value(lfsr_value),
         .lfsr_valid(lfsr_valid)
     );
 
+    reg                   hold;
+    reg                   hold_on;
+
+    reg                   step;
+    reg                   step_on;
     always @(posedge clk, negedge rst_n)
     begin
 
@@ -324,7 +317,6 @@ endmodule // tt_um__kwr_lfsr__top
 module test_lfsr;
     reg                   clk;
     reg                   rst_n;
-    reg                   lfsr_hold;
     reg          [5:0]    lfsr_length;
     reg                   lfsr_n_taps;
 
@@ -335,7 +327,6 @@ module test_lfsr;
     (
         .clk(clk),
         .rst_n(rst_n),
-        .lfsr_hold(lfsr_hold),
         .lfsr_length(lfsr_length),
         .lfsr_n_taps(lfsr_n_taps),
         .lfsr_value(lfsr_value),
@@ -352,7 +343,6 @@ module test_lfsr;
         rst_n             = 1;
         $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
-        lfsr_hold         = 0;
         lfsr_length       = 6'd7;
         lfsr_n_taps       = 0;
 

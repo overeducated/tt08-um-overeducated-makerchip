@@ -18,6 +18,7 @@ LFSR_GEN_OPTS	= 	-Hv \
 			--generate logic \
 			--generate test_lfsr
 #			--generate test_logic
+#			--generate test_lfsr
 
 # ##################
 #			--generate logic \

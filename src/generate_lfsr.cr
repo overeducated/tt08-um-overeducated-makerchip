@@ -764,7 +764,7 @@
             puts "    input  wire           clk,"
             puts "    input  wire           rst_n,"
 
-            puts "    input  wire           lfsr_hold,"
+            # puts "    input  wire           lfsr_hold,"                                                             # kwr::TODO---- **** pull this value out of the interface as we can simply not clock the lfsr when holding ****
             puts "    input  wire  [#{lfsr_length_size - 1}:0]    lfsr_length,"
             puts "    input  wire           lfsr_n_taps,"
 
@@ -812,8 +812,8 @@
 
             puts ""
 
-            puts "    reg         [#{lfsr_length_max - 1}:0]    lfsr_value_prev;"
-            puts "    reg                   lfsr_valid_prev;"
+            # puts "    reg         [#{lfsr_length_max - 1}:0]    lfsr_value_prev;"
+            # puts "    reg                   lfsr_valid_prev;"
 
             puts ""
 
@@ -838,47 +838,60 @@
             puts "    always @(#{polarity?(clock_polarity, pos: "posedge ", neg: "negedge ")}#{clock_symbol} or #{polarity?(reset_polarity, pos: "posedge ", neg: "negedge ")}#{reset_symbol})"
             puts "    begin"
 
-            puts "        if      (lfsr_hold)"
+            puts "        if      (#{polarity?(reset_polarity, pos: "", neg: "~")}#{reset_symbol})"
+                                # should lfsr_init_value be specified in the table (at the 0-length position?) as tap-dependent?
+                                # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
             puts "          begin"
-# puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
-            puts "            lfsr_value  <= lfsr_value_prev;"
-            puts "            lfsr_valid  <= lfsr_valid_prev;"
+# puts "$display(#{DQ}.... .... reset#{DQ});"
+            # puts "            // initialize previous value/valid"
+            # puts "            lfsr_value_prev  <= #{lfsr_length_max}'d#{lfsr_init_value};"
+            # puts "            lfsr_valid_prev  <= 1;"
+
+            # puts ""
+
+            puts "            // initialize current value/valid"
+            puts "            lfsr_value       <= #{lfsr_length_max}'d#{lfsr_init_value};"
+            puts "            lfsr_valid       <= 1;"
             puts "          end"
+
+
+#             puts "        else if (lfsr_hold)"
+#             puts "          begin"
+# # puts "$display(#{DQ}.... .... lfsr hold#{DQ});"
+#             puts "            // reuse previous value/valid"
+#             puts "            lfsr_value  <= lfsr_value_prev;"
+#             puts "            lfsr_valid  <= lfsr_valid_prev;"
+#             puts "          end"
 
             puts "        else if (~mask_valid)"
                                 # should lfsr_invalid_value but specified somewhere?
                                 # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
             puts "          begin"
 # puts "$display(#{DQ}.... .... lfsr mask invalid#{DQ});"
+            # puts "            // force previous value/valid to invalid as we're aready not holding"
+            # puts "            lfsr_value_prev  <= #{lfsr_length_max}'d0;"
+            # puts "            lfsr_valid_prev  <= 0;"
+
+            # puts ""
+
+            puts "            // force current value/valid to invalid"
             puts "            lfsr_value  <= #{lfsr_length_max}'d0;"
             puts "            lfsr_valid  <= 0;"
-            puts "          end"
-
-            puts "        else if (#{polarity?(reset_polarity, pos: "", neg: "~")}#{reset_symbol})"
-                                # should lfsr_init_value be specified in the table (at the 0-length position?) as tap-dependent?
-                                # or are all maximal-length lfsr 2^n - 1 with 0 being the only invalid & stable state?
-            puts "          begin"
-# puts "$display(#{DQ}.... .... reset#{DQ});"
-            puts "            lfsr_value_prev  <= #{lfsr_length_max}'d#{lfsr_init_value};"
-            puts "            lfsr_valid_prev  <= 1;"
-
-            puts "            lfsr_value       <= #{lfsr_length_max}'d#{lfsr_init_value};"
-            puts "            lfsr_valid       <= 1;"
             puts "          end"
 
             puts "        else"
             puts "          begin"
 # puts "$display(#{DQ}.... .... cycle .... mask_value = 0b%07b#{DQ}, mask_value);"
+            # puts "            // preserve the previous value/valid for when we're holding"
+            # puts "            lfsr_value_prev  <= lfsr_value;"
+            # puts "            lfsr_valid_prev  <= lfsr_valid;"
 
-            puts "            // shift the previous value and add in the computed (reduced) feedback value"
-            puts "            lfsr_value_prev  <= lfsr_value;"
-# puts "$display(#{DQ}.... .... .... lfsr_value_prev = 0b%0#{lfsr_length_max}b lfsr_valid_prev = 0b%1b lfsr_value = 0b%0#{lfsr_length_max}b lfsr_valid = 0b%1b#{DQ}, lfsr_value_prev, lfsr_valid_prev, lfsr_value, lfsr_valid"
-            puts "            lfsr_valid_prev  <= lfsr_valid;"
-# puts "$display(#{DQ}.... .... .... lfsr_value_prev = 0b%0#{lfsr_length_max}b lfsr_valid_prev = 0b%1b lfsr_value = 0b%0#{lfsr_length_max}b lfsr_valid = 0b%1b#{DQ}, lfsr_value_prev, lfsr_valid_prev, lfsr_value, lfsr_valid"
-            puts "            lfsr_value       <= { lfsr_value_prev[#{lfsr_length_max - 2}:0], ^(lfsr_value_prev & mask_value) };"
-# puts "$display(#{DQ}.... .... .... lfsr_value_prev = 0b%0#{lfsr_length_max}b lfsr_valid_prev = 0b%1b lfsr_value = 0b%0#{lfsr_length_max}b lfsr_valid = 0b%1b#{DQ}, lfsr_value_prev, lfsr_valid_prev, lfsr_value, lfsr_valid"
+            # puts ""
+
+            puts "            // shift the previous value and add in the computed (reduced) feedback value, set valid correctly (already verified mask is valid)"
+            # puts "            lfsr_value       <= { lfsr_value_prev[#{lfsr_length_max - 2}:0], ^(lfsr_value_prev & mask_value) };"
+            puts "            lfsr_value       <= { lfsr_value[#{lfsr_length_max - 2}:0], ^(lfsr_value & mask_value) };"
             puts "            lfsr_valid       <= 1;"
-# puts "$display(#{DQ}.... .... .... lfsr_value_prev = 0b%0#{lfsr_length_max}b lfsr_valid_prev = 0b%1b lfsr_value = 0b%0#{lfsr_length_max}b lfsr_valid = 0b%1b#{DQ}, lfsr_value_prev, lfsr_valid_prev, lfsr_value, lfsr_valid"
             puts "          end"
             puts "        // endif"
 
@@ -1006,8 +1019,8 @@
 
             puts ""
 
-            puts "    reg                   lfsr_hold;"
-            puts "    reg         [#{lfsr_length_size - 1}:0]    lfsr_length;"
+            # puts "    reg                   lfsr_hold;"
+            puts "    reg         [#{lfsr_length_size - 1}:0]     lfsr_length;"
             puts "    reg                   lfsr_n_taps;"
             # puts "    reg         [#{lfsr_length_max  - 1}:0]    lfsr_value_prev;"
             # puts "    wire                  lfsr_valid_prev;"
@@ -1018,7 +1031,7 @@
             puts "    ("
             puts "        .clk(clk),"
             puts "        .rst_n(rst_n),"
-            puts "        .lfsr_hold(lfsr_hold),"
+            # puts "        .lfsr_hold(lfsr_hold),"
             puts "        .lfsr_length(lfsr_length),"
             puts "        .lfsr_n_taps(lfsr_n_taps),"
             # puts "        .lfsr_value_prev(lfsr_value_prev),"
@@ -1028,6 +1041,16 @@
             puts "    );"
 
             puts ""
+
+            puts "    reg                   hold;"
+            puts "    reg                   hold_on;"
+
+            puts ""
+
+            puts "    reg                   step;"
+            puts "    reg                   step_on;"
+
+
 
             puts "    always @(#{polarity?(clock_polarity, pos: "posedge ", neg: "negedge ")}#{clock_symbol}, #{polarity?(reset_polarity, pos: "posedge ", neg: "negedge ")}#{reset_symbol})"
             puts "    begin"
@@ -1235,7 +1258,7 @@
             puts "    reg                   clk;"
             puts "    reg                   rst_n;"
 
-            puts "    reg                   lfsr_hold;"
+            # puts "    reg                   lfsr_hold;"
             puts "    reg          [#{lfsr_length_size - 1}:0]    lfsr_length;"
             puts "    reg                   lfsr_n_taps;"
 
@@ -1253,7 +1276,7 @@
             puts "    ("
             puts "        .clk(clk),"
             puts "        .rst_n(rst_n),"
-            puts "        .lfsr_hold(lfsr_hold),"
+            # puts "        .lfsr_hold(lfsr_hold),"
             puts "        .lfsr_length(lfsr_length),"
             puts "        .lfsr_n_taps(lfsr_n_taps),"
             # puts "        .lfsr_value_prev(lfsr_value_prev),"
@@ -1281,7 +1304,7 @@
 
             puts ""
 
-            puts "        lfsr_hold         = 0;"
+            # puts "        lfsr_hold         = 0;"
             puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
             puts "        lfsr_n_taps       = 0;"
             # puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"
@@ -1474,7 +1497,7 @@
             # puts "    ("
             # puts "        .clk(clk),"
             # puts "        .rst_n(rst_n),"
-            # puts "        .lfsr_hold(lfsr_hold),"
+            # # puts "        .lfsr_hold(lfsr_hold),"
             # puts "        .lfsr_length(lfsr_length),"
             # puts "        .lfsr_n_taps(lfsr_n_taps),"
             # puts "        .lfsr_value_prev(lfsr_value_prev),"
@@ -1500,7 +1523,7 @@
 
             # puts ""
 
-            # puts "        lfsr_hold         = 0;"
+            # # puts "        lfsr_hold         = 0;"
             # puts "        lfsr_length       = #{lfsr_length_size}'d#{lfsr_length};"
             # puts "        lfsr_n_taps       = 0;"
             # puts "        lfsr_value_prev   = #{lfsr_length_max}'d#{lfsr_value_prev};"

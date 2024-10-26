@@ -37,50 +37,48 @@
 
 module generate_mask_fibonacci_2_taps
 (
-    input  wire [5:0]    lfsr_length,
+    input  wire [4:0]    lfsr_length,
 
-    output reg  [63:0]   mask_value,
+    output reg  [31:0]   mask_value,
     output reg           mask_valid
 );
 
     always @(*)
     begin
         case (lfsr_length)
-               6'd00 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd01 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd02 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000011; mask_valid  = 1; end
-               6'd03 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000110; mask_valid  = 1; end
-               6'd04 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000001100; mask_valid  = 1; end
-               6'd05 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000010100; mask_valid  = 1; end
-               6'd06 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000110000; mask_valid  = 1; end
-               6'd07 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000001100000; mask_valid  = 1; end
-               6'd08 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd09 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000100010000; mask_valid  = 1; end
-               6'd10 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000001001000000; mask_valid  = 1; end
-               6'd11 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000010100000000; mask_valid  = 1; end
-               6'd12 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd13 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd14 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd15 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000110000000000000; mask_valid  = 1; end
-               6'd16 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd17 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000010010000000000000; mask_valid  = 1; end
-               6'd18 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000100000010000000000; mask_valid  = 1; end
-               6'd19 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd20 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000010010000000000000000; mask_valid  = 1; end
-               6'd21 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000101000000000000000000; mask_valid  = 1; end
-               6'd22 : begin mask_value  <= 64'b0000000000000000000000000000000000000000001100000000000000000000; mask_valid  = 1; end
-               6'd23 : begin mask_value  <= 64'b0000000000000000000000000000000000000000010000100000000000000000; mask_valid  = 1; end
-               6'd24 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd25 : begin mask_value  <= 64'b0000000000000000000000000000000000000001001000000000000000000000; mask_valid  = 1; end
-               6'd26 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd27 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd28 : begin mask_value  <= 64'b0000000000000000000000000000000000001001000000000000000000000000; mask_valid  = 1; end
-               6'd29 : begin mask_value  <= 64'b0000000000000000000000000000000000010100000000000000000000000000; mask_valid  = 1; end
-               6'd30 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd31 : begin mask_value  <= 64'b0000000000000000000000000000000001001000000000000000000000000000; mask_valid  = 1; end
-               6'd32 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd33 : begin mask_value  <= 64'b0000000000000000000000000000000100000000000010000000000000000000; mask_valid  = 1; end
-             default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
+               5'd00 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd01 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd02 : begin mask_value  <= 32'b00000000000000000000000000000011; mask_valid  = 1; end
+               5'd03 : begin mask_value  <= 32'b00000000000000000000000000000110; mask_valid  = 1; end
+               5'd04 : begin mask_value  <= 32'b00000000000000000000000000001100; mask_valid  = 1; end
+               5'd05 : begin mask_value  <= 32'b00000000000000000000000000010100; mask_valid  = 1; end
+               5'd06 : begin mask_value  <= 32'b00000000000000000000000000110000; mask_valid  = 1; end
+               5'd07 : begin mask_value  <= 32'b00000000000000000000000001100000; mask_valid  = 1; end
+               5'd08 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd09 : begin mask_value  <= 32'b00000000000000000000000100010000; mask_valid  = 1; end
+               5'd10 : begin mask_value  <= 32'b00000000000000000000001001000000; mask_valid  = 1; end
+               5'd11 : begin mask_value  <= 32'b00000000000000000000010100000000; mask_valid  = 1; end
+               5'd12 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd13 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd14 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd15 : begin mask_value  <= 32'b00000000000000000110000000000000; mask_valid  = 1; end
+               5'd16 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd17 : begin mask_value  <= 32'b00000000000000010010000000000000; mask_valid  = 1; end
+               5'd18 : begin mask_value  <= 32'b00000000000000100000010000000000; mask_valid  = 1; end
+               5'd19 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd20 : begin mask_value  <= 32'b00000000000010010000000000000000; mask_valid  = 1; end
+               5'd21 : begin mask_value  <= 32'b00000000000101000000000000000000; mask_valid  = 1; end
+               5'd22 : begin mask_value  <= 32'b00000000001100000000000000000000; mask_valid  = 1; end
+               5'd23 : begin mask_value  <= 32'b00000000010000100000000000000000; mask_valid  = 1; end
+               5'd24 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd25 : begin mask_value  <= 32'b00000001001000000000000000000000; mask_valid  = 1; end
+               5'd26 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd27 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd28 : begin mask_value  <= 32'b00001001000000000000000000000000; mask_valid  = 1; end
+               5'd29 : begin mask_value  <= 32'b00010100000000000000000000000000; mask_valid  = 1; end
+               5'd30 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd31 : begin mask_value  <= 32'b01001000000000000000000000000000; mask_valid  = 1; end
+             default : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
         endcase
     end // always
 
@@ -90,50 +88,48 @@ endmodule // generate_mask_fibonacci_
 
 module generate_mask_fibonacci_4_taps
 (
-    input  wire [5:0]    lfsr_length,
+    input  wire [4:0]    lfsr_length,
 
-    output reg  [63:0]   mask_value,
+    output reg  [31:0]   mask_value,
     output reg           mask_valid
 );
 
     always @(*)
     begin
         case (lfsr_length)
-               6'd00 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd01 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd02 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd03 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd04 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
-               6'd05 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000011110; mask_valid  = 1; end
-               6'd06 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000110110; mask_valid  = 1; end
-               6'd07 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000001111000; mask_valid  = 1; end
-               6'd08 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000010111000; mask_valid  = 1; end
-               6'd09 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000110110000; mask_valid  = 1; end
-               6'd10 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000001101100000; mask_valid  = 1; end
-               6'd11 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000011101000000; mask_valid  = 1; end
-               6'd12 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000110010100000; mask_valid  = 1; end
-               6'd13 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000001101100000000; mask_valid  = 1; end
-               6'd14 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000011010100000000; mask_valid  = 1; end
-               6'd15 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000111010000000000; mask_valid  = 1; end
-               6'd16 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000001011010000000000; mask_valid  = 1; end
-               6'd17 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000011110000000000000; mask_valid  = 1; end
-               6'd18 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000111001000000000000; mask_valid  = 1; end
-               6'd19 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000001110010000000000000; mask_valid  = 1; end
-               6'd20 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000011001010000000000000; mask_valid  = 1; end
-               6'd21 : begin mask_value  <= 64'b0000000000000000000000000000000000000000000111001000000000000000; mask_valid  = 1; end
-               6'd22 : begin mask_value  <= 64'b0000000000000000000000000000000000000000001001110000000000000000; mask_valid  = 1; end
-               6'd23 : begin mask_value  <= 64'b0000000000000000000000000000000000000000011010100000000000000000; mask_valid  = 1; end
-               6'd24 : begin mask_value  <= 64'b0000000000000000000000000000000000000000110110000000000000000000; mask_valid  = 1; end
-               6'd25 : begin mask_value  <= 64'b0000000000000000000000000000000000000001111000000000000000000000; mask_valid  = 1; end
-               6'd26 : begin mask_value  <= 64'b0000000000000000000000000000000000000011100010000000000000000000; mask_valid  = 1; end
-               6'd27 : begin mask_value  <= 64'b0000000000000000000000000000000000000111001000000000000000000000; mask_valid  = 1; end
-               6'd28 : begin mask_value  <= 64'b0000000000000000000000000000000000001100101000000000000000000000; mask_valid  = 1; end
-               6'd29 : begin mask_value  <= 64'b0000000000000000000000000000000000011101000000000000000000000000; mask_valid  = 1; end
-               6'd30 : begin mask_value  <= 64'b0000000000000000000000000000000000110010100000000000000000000000; mask_valid  = 1; end
-               6'd31 : begin mask_value  <= 64'b0000000000000000000000000000000001111000000000000000000000000000; mask_valid  = 1; end
-               6'd32 : begin mask_value  <= 64'b0000000000000000000000000000000010100011000000000000000000000000; mask_valid  = 1; end
-               6'd33 : begin mask_value  <= 64'b0000000000000000000000000000000110010100000000000000000000000000; mask_valid  = 1; end
-             default : begin mask_value  <= 64'b0000000000000000000000000000000000000000000000000000000000000000; mask_valid  = 0; end
+               5'd00 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd01 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd02 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd03 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd04 : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
+               5'd05 : begin mask_value  <= 32'b00000000000000000000000000011110; mask_valid  = 1; end
+               5'd06 : begin mask_value  <= 32'b00000000000000000000000000110110; mask_valid  = 1; end
+               5'd07 : begin mask_value  <= 32'b00000000000000000000000001111000; mask_valid  = 1; end
+               5'd08 : begin mask_value  <= 32'b00000000000000000000000010111000; mask_valid  = 1; end
+               5'd09 : begin mask_value  <= 32'b00000000000000000000000110110000; mask_valid  = 1; end
+               5'd10 : begin mask_value  <= 32'b00000000000000000000001101100000; mask_valid  = 1; end
+               5'd11 : begin mask_value  <= 32'b00000000000000000000011101000000; mask_valid  = 1; end
+               5'd12 : begin mask_value  <= 32'b00000000000000000000110010100000; mask_valid  = 1; end
+               5'd13 : begin mask_value  <= 32'b00000000000000000001101100000000; mask_valid  = 1; end
+               5'd14 : begin mask_value  <= 32'b00000000000000000011010100000000; mask_valid  = 1; end
+               5'd15 : begin mask_value  <= 32'b00000000000000000111010000000000; mask_valid  = 1; end
+               5'd16 : begin mask_value  <= 32'b00000000000000001011010000000000; mask_valid  = 1; end
+               5'd17 : begin mask_value  <= 32'b00000000000000011110000000000000; mask_valid  = 1; end
+               5'd18 : begin mask_value  <= 32'b00000000000000111001000000000000; mask_valid  = 1; end
+               5'd19 : begin mask_value  <= 32'b00000000000001110010000000000000; mask_valid  = 1; end
+               5'd20 : begin mask_value  <= 32'b00000000000011001010000000000000; mask_valid  = 1; end
+               5'd21 : begin mask_value  <= 32'b00000000000111001000000000000000; mask_valid  = 1; end
+               5'd22 : begin mask_value  <= 32'b00000000001001110000000000000000; mask_valid  = 1; end
+               5'd23 : begin mask_value  <= 32'b00000000011010100000000000000000; mask_valid  = 1; end
+               5'd24 : begin mask_value  <= 32'b00000000110110000000000000000000; mask_valid  = 1; end
+               5'd25 : begin mask_value  <= 32'b00000001111000000000000000000000; mask_valid  = 1; end
+               5'd26 : begin mask_value  <= 32'b00000011100010000000000000000000; mask_valid  = 1; end
+               5'd27 : begin mask_value  <= 32'b00000111001000000000000000000000; mask_valid  = 1; end
+               5'd28 : begin mask_value  <= 32'b00001100101000000000000000000000; mask_valid  = 1; end
+               5'd29 : begin mask_value  <= 32'b00011101000000000000000000000000; mask_valid  = 1; end
+               5'd30 : begin mask_value  <= 32'b00110010100000000000000000000000; mask_valid  = 1; end
+               5'd31 : begin mask_value  <= 32'b01111000000000000000000000000000; mask_valid  = 1; end
+             default : begin mask_value  <= 32'b00000000000000000000000000000000; mask_valid  = 0; end
         endcase
     end // always
 
@@ -145,14 +141,14 @@ module lfsr_fibonacci
 (
     input  wire           clk,
     input  wire           rst_n,
-    input  wire  [5:0]    lfsr_length,
+    input  wire  [4:0]    lfsr_length,
     input  wire           lfsr_n_taps,
 
-    output reg  [63:0]    lfsr_value,
+    output reg  [31:0]    lfsr_value,
     output reg            lfsr_valid
 );
 
-    wire        [63:0]    mask_value_2_taps;
+    wire        [31:0]    mask_value_2_taps;
     wire                  mask_valid_2_taps;
 
     generate_mask_fibonacci_2_taps    gmf2t
@@ -162,7 +158,7 @@ module lfsr_fibonacci
         .mask_valid(mask_valid_2_taps)
     );
 
-    wire        [63:0]    mask_value_4_taps;
+    wire        [31:0]    mask_value_4_taps;
     wire                  mask_valid_4_taps;
 
     generate_mask_fibonacci_4_taps    gmf4t
@@ -172,45 +168,46 @@ module lfsr_fibonacci
         .mask_valid(mask_valid_4_taps)
     );
 
-    reg         [63:0]    mask_value;
+    reg         [31:0]    mask_value;
     reg                   mask_valid;
 
 
     always @(*)
     begin
         if      (lfsr_n_taps)
-          begin
+        begin
             mask_value  <= mask_value_4_taps;
             mask_valid  <= mask_valid_4_taps;
-          end
+        end
         else
-          begin
+        begin
             mask_value  <= mask_value_2_taps;
             mask_valid  <= mask_valid_2_taps;
-          end
+        end
         // endif
     end // always
 
-    always @(posedge clk or negedge rst_n)
+    always @(posedge clk,
+             negedge rst_n)
     begin
         if      (~rst_n)
-          begin
+        begin
             // initialize current value/valid
-            lfsr_value       <= 64'd1;
+            lfsr_value       <= 32'd1;
             lfsr_valid       <= 1;
-          end
+        end
         else if (~mask_valid)
-          begin
+        begin
             // force current value/valid to invalid
-            lfsr_value  <= 64'd0;
+            lfsr_value  <= 32'd0;
             lfsr_valid  <= 0;
-          end
+        end
         else
-          begin
+        begin
             // shift the previous value and add in the computed (reduced) feedback value, set valid correctly (already verified mask is valid)
-            lfsr_value       <= { lfsr_value[62:0], ^(lfsr_value & mask_value) };
+            lfsr_value       <= { lfsr_value[30:0], ^(lfsr_value & mask_value) };
             lfsr_valid       <= 1;
-          end
+        end
         // endif
 
     end // always
@@ -236,12 +233,11 @@ endmodule // lfsr_fibonacci
 
 // ////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
-
 module tt_um__kwr_lfsr__top // top-level (and business) logic
 (
     // parameters from tt09 top-module definition on nhttps://tinytapeout.com/hdl/important/, reformatted for consistency
     input  wire           clk,        // clock
-    input  wire           rst_n,      // reset_n - low to reset
+    input  wire           rst_n,      // reset
     input  wire           ena,        // will go high when the design is enabled
     input  wire  [7:0]    ui_in,      // Dedicated inputs
     input  wire  [7:0]    uio_in,     // IOs: Input path
@@ -255,40 +251,108 @@ module tt_um__kwr_lfsr__top // top-level (and business) logic
 
 // ////////////////////////////////////////////////////////////////////////
 
-    reg         [5:0]     lfsr_length;
-    reg                   lfsr_n_taps;
-    wire        [63:0]    lfsr_value;
-    wire                  lfsr_valid;
-    lfsr_fibonacci    lfsr
-    (
-        .clk(clk),
-        .rst_n(rst_n),
-        .lfsr_length(lfsr_length),
-        .lfsr_n_taps(lfsr_n_taps),
-        .lfsr_value(lfsr_value),
-        .lfsr_valid(lfsr_valid)
-    );
-
+    reg         [4:0]     length;
+    reg                   n_taps;
     reg                   hold;
     reg                   hold_on;
-
     reg                   step;
     reg                   step_on;
-    always @(posedge clk, negedge rst_n)
-    begin
+    reg                   clock_mask;
+    reg                   c_clk;
 
+    wire        [31:0]    value;
+    wire                  valid;
+    lfsr_fibonacci    lfsr
+    (
+        .clk(c_clk),
+        .rst_n(rst_n),
+        .lfsr_length(length),
+        .lfsr_n_taps(n_taps),
+        .lfsr_value(value),
+        .lfsr_valid(valid)
+    );
 
-    end // always
-// ////////////////////////////////////////////////////////////////////////
+    // input IO connections
+    parameter    UI_IN_HOLD               = 7;
+    parameter    UI_IN_STEP               = 6;
+    parameter    UI_IN_N_TAPS             = 5;
+    parameter    UI_IN_LENGTH_4           = 4;
+    parameter    UI_IN_LENGTH_3           = 3;
+    parameter    UI_IN_LENGTH_2           = 2;
+    parameter    UI_IN_LENGTH_1           = 1;
+    parameter    UI_IN_LENGTH_0           = 0;
+
+    // bidirectional IO connections (Static)
+    parameter    UIO_OUT_LFSR_VALID       = 7;
+    parameter    UIO_OUT_LFSR_VALUE_14    = 6;
+    parameter    UIO_OUT_LFSR_VALUE_13    = 5;
+    parameter    UIO_OUT_LFSR_VALUE_12    = 4;
+    parameter    UIO_OUT_LFSR_VALUE_11    = 3;
+    parameter    UIO_OUT_LFSR_VALUE_10    = 2;
+    parameter    UIO_OUT_LFSR_VALUE_09    = 1;
+    parameter    UIO_OUT_LFSR_VALUE_08    = 0;
+
+    // output IO connections (Static)
+    parameter    UIO_OUT_LFSR_VALUE_07    = 7;
+    parameter    UIO_OUT_LFSR_VALUE_06    = 6;
+    parameter    UIO_OUT_LFSR_VALUE_05    = 5;
+    parameter    UIO_OUT_LFSR_VALUE_04    = 4;
+    parameter    UIO_OUT_LFSR_VALUE_03    = 3;
+    parameter    UIO_OUT_LFSR_VALUE_02    = 2;
+    parameter    UIO_OUT_LFSR_VALUE_01    = 1;
+    parameter    UIO_OUT_LFSR_VALUE_00    = 0;
+
+    // bidirectional IO output-enable (Static)
+    parameter    UIO_OE                   = 8'b11111111;
+
+    // ////////////////////////////////////////////////////////////////////////
+    // get inputs
+
     always @(*)
     begin
-        // All output pins must be assigned. If not used, assign to 0.
-        uo_out     = 0;
-        uio_out    = 0;
-        uio_oe     = 0;
+        hold               <= ui_in[UI_IN_HOLD];
+        step               <= ui_in[UI_IN_STEP];
+        n_taps             <= ui_in[UI_IN_N_TAPS];
+        length             <= ui_in[UI_IN_LENGTH_4:UI_IN_LENGTH_0];
+    end // always
 
-        _unused    = &{ena, clk, rst_n, 1'b0};
-    end
+    // ////////////////////////////////////////////////////////////////////////
+    // manage each cycle
+
+    always @(posedge clk,
+             negedge rst_n)
+    begin
+        if      (~rst_n)
+        begin
+            hold_on        <= 0;
+            step_on        <= 0;
+        end
+        else
+        begin
+            uio_out        <= { valid, value[14:08] };
+            uo_out         <=          value[07:00];
+        end
+        // endif
+    end // always
+
+    always @(*)
+    begin
+        // naiive approach
+        clock_mask         <= 1;
+        c_clk              <= clk & clock_mask;
+    end // always
+
+    // ////////////////////////////////////////////////////////////////////////
+
+    // put outputs
+    always @(*)
+    begin
+        // assign bidirectional-output directions.
+        uio_oe         <= UIO_OE;
+
+            // assign unused module outputs to 0 to prevent warnings
+            _unused  <= &{ena, 1'b0};
+    end // always
 
 endmodule // tt_um__kwr_lfsr__top
 
@@ -317,10 +381,10 @@ endmodule // tt_um__kwr_lfsr__top
 module test_lfsr;
     reg                   clk;
     reg                   rst_n;
-    reg          [5:0]    lfsr_length;
+    reg          [4:0]    lfsr_length;
     reg                   lfsr_n_taps;
 
-    wire        [63:0]    lfsr_value;
+    wire        [31:0]    lfsr_value;
     wire                  lfsr_valid;
 
     lfsr_fibonacci    lfsr
@@ -343,7 +407,7 @@ module test_lfsr;
         rst_n             = 1;
         $display("#### cycle = %d, clk = %d, rst_n = %d, lfsr_valid = %d, lfsr_value = 0b%07b", cycle, clk, rst_n, lfsr_valid, lfsr_value & 127);
 
-        lfsr_length       = 6'd7;
+        lfsr_length       = 5'd7;
         lfsr_n_taps       = 0;
 
         #50;

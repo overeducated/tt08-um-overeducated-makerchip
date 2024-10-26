@@ -6,24 +6,25 @@ clean:		generate_lfsr lfsr.v
 generate_lfsr:	generate_lfsr.cr
 	crystal build $<
 
-LFSR_GEN_OPTS	= 	-Hv \
-			-i1 \
-			-n34 \
-			-C +clk \
-			-R -rst_n \
-			-L lfsr \
-			-T fib \
-			--generate header \
-			--generate modules \
-			--generate logic \
+LFSR_GEN_OPTS	= 	-Hv                      \
+			-i1                      \
+			-n32                     \
+			-C +clk                  \
+			-R -rst_n                \
+			-L lfsr                  \
+			-T fib                   \
+			--generate header        \
+			--generate modules       \
+			--generate logic         \
 			--generate test_lfsr
+
 #			--generate test_logic
 #			--generate test_lfsr
 
 # ##################
-#			--generate logic \
-#			--generate test_lfsr \
-#			--generate test_logic \
+#			--generate logic           \
+#			--generate test_lfsr       \
+#			--generate test_logic      \
 # ##################
 
 lfsr.v:		generate_lfsr
